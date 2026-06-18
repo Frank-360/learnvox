@@ -10,9 +10,12 @@ from utils.database import save_user
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+AUDIO_FOLDER = "static/audio"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(AUDIO_FOLDER, exist_ok=True)
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 @app.route("/")
 def home():
@@ -52,33 +55,24 @@ def upload():
     # Generate summary
     summary = summarize(text)
 
-    # Generate audio
+# Generate audio
     audio_path = "static/audio/summary.mp3"
 
     generate_audio(
-        summary,
-        audio_path
+    summary,
+    audio_path
     )
 
     html_summary = markdown.markdown(summary)
 
-    return f"""
-        <h2>Summary</h2>
-        {html_summary}
-
-        <h2>Audio Version</h2>
-
-        <audio controls>
-            <source src="/static/audio/summary.mp3" type="audio/mpeg">
-        </audio>
-        """
-
-
-    html_summary = markdown.markdown(summary)
+    return render_template(
+    "result.html",
+    summary=html_summary
+)
 
     return render_template(
-        "result.html",
-        summary=html_summary
+    "result.html",
+    summary=html_summary
 )
 
 if __name__ == "__main__":
