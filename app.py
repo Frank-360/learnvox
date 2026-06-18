@@ -5,6 +5,7 @@ import markdown
 from utils.pdf_reader import extract_text
 from utils.summarizer import summarize
 from utils.tts import generate_audio
+from utils.database import save_user
 
 app = Flask(__name__)
 
@@ -21,6 +22,15 @@ def home():
 @app.route("/upload", methods=["POST"])
 def upload():
 
+    
+    full_name = request.form["full_name"]
+    institution = request.form["institution"]
+    email = request.form["email"]
+
+    print(full_name)
+    print(institution)
+    print(email)
+
     file = request.files["file"]
 
     filepath = os.path.join(
@@ -28,10 +38,15 @@ def upload():
         file.filename
     )
 
-    # Save uploaded PDF
     file.save(filepath)
 
-    # Extract text
+    save_user(
+    full_name,
+    institution,
+    email,
+    file.filename
+    )
+
     text = extract_text(filepath)
 
     # Generate summary
@@ -58,6 +73,13 @@ def upload():
         </audio>
         """
 
+
+    html_summary = markdown.markdown(summary)
+
+    return render_template(
+        "result.html",
+        summary=html_summary
+)
 
 if __name__ == "__main__":
     app.run(debug=True)
