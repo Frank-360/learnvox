@@ -40,11 +40,19 @@
             margin-bottom:10px;
         }
 
+            .headline{
+        font-size:32px;
+        font-weight:bold;
+        margin-top:10px;
+        margin-bottom:15px;
+        color:#222;
+        }
+
         .tagline{
             color:#555;
             font-size:18px;
+            line-height:1.7;
             margin-bottom:30px;
-            line-height:1.6;
         }
 
         .upload-box{
@@ -102,6 +110,7 @@
             border-radius:10px;
             font-size:16px;
         }
+        
 
     </style>
 </head>
@@ -110,13 +119,17 @@
 
 <div class="container">
 
-    <div class="logo">
-        LearnVox
-    </div>
+    <h1 class="logo">
+    LearnVox
+</h1>
 
-    <div class="tagline">
-        Turn any document into an AI-powered summary and audio lesson in seconds.
-    </div>
+<h2 class="headline">
+    Turn Any Document Into a Personal AI Tutor
+</h2>
+
+<p class="tagline">
+    Upload PDFs, notes, research papers, or study materials and instantly get conversational AI lessons and audio explanations that help you learn faster.
+</p>
 
  <form action="/upload"
       method="POST"
