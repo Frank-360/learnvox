@@ -26,26 +26,26 @@
         .container{
             background:white;
             width:100%;
-            max-width:700px;
+            max-width:800px;
             padding:40px;
             border-radius:20px;
             box-shadow:0 10px 30px rgba(0,0,0,0.1);
-            text-align:center;
         }
 
         .logo{
             font-size:42px;
             font-weight:bold;
             color:#2563eb;
+            text-align:center;
             margin-bottom:10px;
         }
 
-            .headline{
-        font-size:32px;
-        font-weight:bold;
-        margin-top:10px;
-        margin-bottom:15px;
-        color:#222;
+        .headline{
+            font-size:32px;
+            font-weight:bold;
+            margin-bottom:15px;
+            color:#222;
+            text-align:center;
         }
 
         .tagline{
@@ -53,6 +53,7 @@
             font-size:18px;
             line-height:1.7;
             margin-bottom:30px;
+            text-align:center;
         }
 
         .upload-box{
@@ -61,10 +62,16 @@
             padding:30px;
             margin-bottom:20px;
             background:#f8fbff;
+            text-align:center;
         }
 
-        input[type="file"]{
-            margin-top:10px;
+        input[type="text"],
+        input[type="email"]{
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:10px;
+            font-size:16px;
         }
 
         button{
@@ -76,6 +83,7 @@
             font-size:16px;
             cursor:pointer;
             transition:0.3s;
+            width:100%;
         }
 
         button:hover{
@@ -84,7 +92,6 @@
 
         .features{
             margin-top:30px;
-            text-align:left;
         }
 
         .features h3{
@@ -96,21 +103,92 @@
             color:#444;
         }
 
+        .result-card{
+            margin-top:30px;
+            text-align:left;
+            padding:20px;
+            border-radius:12px;
+            background:#f8fbff;
+            border:1px solid #dbeafe;
+        }
+
+        .result-card h2{
+            margin-bottom:15px;
+            color:#2563eb;
+        }
+
+        .audio-card{
+            margin-top:30px;
+            padding:20px;
+            border-radius:12px;
+            background:#f0fdf4;
+            border:1px solid #bbf7d0;
+        }
+
+        .audio-card h2{
+            margin-bottom:15px;
+        }
+
+        audio{
+            width:100%;
+        }
+
+        .quiz-card{
+            margin-top:30px;
+            text-align:left;
+            padding:20px;
+            border-radius:12px;
+            background:#fffbea;
+            border:1px solid #fde68a;
+        }
+
+        .quiz-card h2{
+            margin-bottom:15px;
+            color:#b45309;
+        }
+
+        .quiz-card pre{
+            white-space:pre-wrap;
+            line-height:1.7;
+        }
+
+
+    .question-block{
+        margin-top:20px;
+    }
+
+    .option-label{
+        display:block;
+        margin:10px 0;
+        padding:12px;
+        border-radius:8px;
+        background:#f8fafc;
+        cursor:pointer;
+    }
+
+    .option-label:hover{
+        background:#eef2ff;
+    }
+
+    .answer-result{
+        margin-top:10px;
+        font-weight:bold;
+    }
+
+    .explanation-box{
+        margin-top:10px;
+        padding:12px;
+        background:#f8fbff;
+        border-left:4px solid #2563eb;
+        border-radius:6px;
+    }
+
         .footer{
             margin-top:30px;
             color:#777;
             font-size:14px;
+            text-align:center;
         }
-
-        input[type="text"],
-        input[type="email"]{
-            width:100%;
-            padding:12px;
-            border:1px solid #ccc;
-            border-radius:10px;
-            font-size:16px;
-        }
-        
 
     </style>
 </head>
@@ -121,86 +199,168 @@
 
     <h1 class="logo">
     LearnVox
-</h1>
+    </h1>
 
-<h2 class="headline">
-    Turn Any Document Into a Personal AI Tutor
-</h2>
+    <h2 class="headline">
+    Building the Future of Personalized Learning
+    </h2>
 
-<p class="tagline">
-    Upload PDFs, notes, research papers, or study materials and instantly get conversational AI lessons and audio explanations that help you learn faster.
-</p>
+    <p class="tagline">
+    LearnVox gives every student an AI teacher that turns study materials into interactive lessons, voice tutoring, and personalized learning experiences.
+    </p>
 
- <form action="/upload"
-      method="POST"
-      enctype="multipart/form-data"
-      onsubmit="showLoading()">
+    <form action="/upload"
+          method="POST"
+          enctype="multipart/form-data"
+          onsubmit="showLoading()">
 
-    <input type="text"
-           name="full_name"
-           placeholder="Full Name"
-           required>
-
-    <br><br>
-
-    <input type="text"
-           name="institution"
-           placeholder="Institution"
-           required>
-
-    <br><br>
-
-    <input type="email"
-           name="email"
-           placeholder="Email Address"
-           required>
-
-    <br><br>
-
-
-    <div class="upload-box">
-
-        <h3>Upload Your Document</h3>
-
-        <br>
-
-        <input type="file"
-               name="file"
+        <input type="text"
+               name="full_name"
+               placeholder="Full Name"
                required>
+
+        <br><br>
+
+        <input type="text"
+               name="institution"
+               placeholder="Institution"
+               required>
+
+        <br><br>
+
+        <input type="email"
+               name="email"
+               placeholder="Email Address"
+               required>
+
+        <br><br>
+
+        <div class="upload-box">
+
+            <h3>Upload Your Study Material</h3>
+
+            <br>
+
+            <input type="file"
+                   name="file"
+                   required>
+
+        </div>
+
+        <button type="submit">
+            Generate AI Lesson
+        </button>
+
+        <div id="loading"
+             style="display:none; margin-top:30px; text-align:center;">
+
+            <h2>⏳ Generating AI Lesson...</h2>
+
+            <p>
+                Please wait while LearnVox processes your document.
+            </p>
+
+            <p>
+                This may take 10–30 seconds depending on document size.
+            </p>
+
+        </div>
+
+    </form>
+
+    {% if summary %}
+    <div class="result-card">
+
+        <h2>📘 AI Lesson</h2>
+
+        {{ summary|safe }}
+
+    </div>
+    {% endif %}
+
+
+    {% if audio_file %}
+    <div class="audio-card">
+
+        <h2>🎧 Audio Lesson</h2>
+
+        <audio controls>
+            <source src="{{ audio_file }}" type="audio/mpeg">
+        </audio>
+
+    </div>
+    {% endif %}
+
+    {% if quiz %}
+    <div class="quiz-card">
+
+        <h2>📝 Practice Quiz</h2>
+
+        {% for q in quiz %}
+
+        <div class="question-block">
+
+            <p>
+                <strong>
+                    Question {{ loop.index }}:
+                    {{ q.question }}
+                </strong>
+            </p>
+
+            {% for option in q.options %}
+
+<label class="option-label">
+
+    <input
+        type="radio"
+        name="question{{ q.question|replace(' ','_') }}"
+        onclick="checkAnswer(
+            {{ loop.index0 }},
+            {{ q.answer }},
+            'result{{ q.question|replace(' ','_') }}',
+            'explanation{{ q.question|replace(' ','_') }}'
+        )"
+    >
+
+    {{ option }}
+
+</label>
+
+            {% endfor %}
+
+        <div
+            id="result{{ q.question|replace(' ','_') }}"
+            class="answer-result">
+        </div>
+
+        <div
+            id="explanation{{ q.question|replace(' ','_') }}"
+            class="explanation-box"
+            style="display:none;">
+
+            {{ q.explanation }}
+
+        </div>
 
     </div>
 
-    <button type="submit">
-        Generate Summary & Audio
-    </button>
+    <hr style="margin:20px 0;">
 
-        <div id="loading"
-        style="display:none; margin-top:30px;">
-
-    <h2>⏳ Generating Summary & Audio...</h2>
-
-    <p>
-        Please wait while LearnVox processes your document.
-    </p>
-
-    <p>
-        This may take 10–30 seconds depending on document size.
-    </p>
+    {% endfor %}
 
 </div>
-
-
-</form>
+{% endif %}
 
     <div class="features">
 
         <h3>What LearnVox Does</h3>
 
         <ul>
-            <li>📄 Extracts text from PDFs</li>
-            <li>🤖 Generates AI summaries</li>
-            <li>🎧 Converts summaries into audio lessons</li>
-            <li>⚡ Helps students study faster</li>
+            <li>📄 Extracts knowledge from study materials</li>
+            <li>🤖 Creates AI-powered lessons</li>
+            <li>🎧 Generates audio explanations</li>
+            <li>📝 Builds practice quizzes automatically</li>
+            <li>⚡ Helps students learn faster and remember longer</li>
         </ul>
 
     </div>
@@ -210,9 +370,8 @@
     </div>
 
 </div>
+
 <script>
-
-
 function showLoading(){
 
     document.getElementById("loading").style.display = "block";
@@ -220,10 +379,46 @@ function showLoading(){
     document.querySelector("button").disabled = true;
 
     document.querySelector("button").innerText =
-        "Generating Summary & Audio...";
+        "Generating AI Lesson...";
+}
 
+function checkAnswer(
+    selected,
+    correct,
+    resultId,
+    explanationId
+){
+
+    const result =
+        document.getElementById(resultId);
+
+    const explanation =
+        document.getElementById(explanationId);
+
+    if(selected === correct){
+
+        result.innerHTML =
+            "✅ Correct!";
+
+        result.style.color =
+            "green";
+    }
+    else{
+
+        result.innerHTML =
+            "❌ Incorrect";
+
+        result.style.color =
+            "red";
+    }
+
+    explanation.style.display =
+        "block";
 }
 
 </script>
+
 </body>
 </html>
+
+
