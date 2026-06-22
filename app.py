@@ -4,11 +4,13 @@ import markdown
 import time
 import json
 
+
 from utils.pdf_reader import extract_text
 from utils.summarizer import summarize
 from utils.tts import generate_audio
 from utils.database import save_user
 from utils.quiz_generator import generate_quiz
+from utils.takeaway_generator import generate_takeaway
 
 app = Flask(__name__)
 
@@ -76,6 +78,7 @@ def upload():
 
     # Generate lesson summary
     summary = summarize(text)
+    takeaway = generate_takeaway(summary)
 
     print("Summary Generation:", time.time() - start_time)
 
@@ -122,11 +125,12 @@ def upload():
     html_summary = markdown.markdown(summary)
 
     return render_template(
-        "index.html",
-        summary=html_summary,
-        audio_file=audio_path,
-        quiz=quiz
-    )
+    "index.html",
+    summary=html_summary,
+    audio_file=audio_path,
+    quiz=quiz,
+    takeaway=takeaway
+)
 
 
 if __name__ == "__main__":

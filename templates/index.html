@@ -175,14 +175,18 @@
         font-weight:bold;
     }
 
-    .explanation-box{
-        margin-top:10px;
-        padding:12px;
-        background:#f8fbff;
-        border-left:4px solid #2563eb;
-        border-radius:6px;
-    }
+.explanation-box{
+    margin-top:10px;
+    padding:15px;
+    background:#f8fbff;
+    border-left:4px solid #2563eb;
+    border-radius:8px;
+    line-height:1.7;
+}
 
+.explanation-box strong{
+    color:#1e40af;
+}
         .footer{
             margin-top:30px;
             color:#777;
@@ -190,6 +194,24 @@
             text-align:center;
         }
 
+
+        .takeaway-card{
+        margin-top:30px;
+        padding:20px;
+        border-radius:12px;
+        background:#eff6ff;
+        border:1px solid #93c5fd;
+    }
+
+    .takeaway-card h2{
+        color:#1d4ed8;
+        margin-bottom:12px;
+    }
+
+    .takeaway-card p{
+        line-height:1.8;
+        color:#333;
+    }
     </style>
 </head>
 
@@ -291,62 +313,105 @@
     </div>
     {% endif %}
 
-    {% if quiz %}
-    <div class="quiz-card">
+{% if quiz %}
 
-        <h2>📝 Practice Quiz</h2>
+<div class="quiz-card">
 
-        {% for q in quiz %}
+<h2>📝 Practice Quiz</h2>
 
-        <div class="question-block">
+{% for q in quiz %}
 
-            <p>
-                <strong>
-                    Question {{ loop.index }}:
-                    {{ q.question }}
-                </strong>
-            </p>
+{% set qid = loop.index %}
 
-            {% for option in q.options %}
+<div class="question-block">
 
-<label class="option-label">
+    <p>
+        <strong>
+            Question {{ qid }}:
+            {{ q.question }}
+        </strong>
+    </p>
 
-    <input
-        type="radio"
-        name="question{{ q.question|replace(' ','_') }}"
-        onclick="checkAnswer(
-            {{ loop.index0 }},
-            {{ q.answer }},
-            'result{{ q.question|replace(' ','_') }}',
-            'explanation{{ q.question|replace(' ','_') }}'
-        )"
-    >
+    {% for option in q.options %}
 
-    {{ option }}
+    <label class="option-label">
 
-</label>
+        <input
+            type="radio"
+            name="question{{ qid }}"
+            onclick="checkAnswer(
+                {{ loop.index0 }},
+                {{ q.answer }},
+                'result{{ qid }}',
+                'explanation{{ qid }}'
+            )"
+        >
 
-            {% endfor %}
+        {{ option }}
 
-        <div
-            id="result{{ q.question|replace(' ','_') }}"
-            class="answer-result">
-        </div>
+    </label>
 
-        <div
-            id="explanation{{ q.question|replace(' ','_') }}"
-            class="explanation-box"
-            style="display:none;">
+    {% endfor %}
 
+    <div
+        id="result{{ qid }}"
+        class="answer-result">
+    </div>
+
+    <div
+        id="explanation{{ qid }}"
+        class="explanation-box"
+        style="display:none;">
+
+        <p>
+            <strong>📖 Explanation:</strong><br>
             {{ q.explanation }}
+        </p>
 
-        </div>
+        {% if q.learning_point %}
+        <p style="margin-top:10px;">
+            <strong>🎯 Key Learning Point:</strong><br>
+            {{ q.learning_point }}
+        </p>
+        {% endif %}
 
     </div>
 
-    <hr style="margin:20px 0;">
+</div>
 
-    {% endfor %}
+<hr style="margin:20px 0;">
+
+{% endfor %}
+
+</div>
+{% endif %}
+
+   
+
+<div id="quiz-score-card"
+     style="display:none;
+            margin-top:20px;
+            padding:20px;
+            border-radius:12px;
+            background:#ecfdf5;
+            border:1px solid #86efac;">
+
+    <h2>🏆 Quiz Complete</h2>
+
+    <p id="score-text"></p>
+
+    <p id="score-message"></p>
+
+</div>
+
+{% if takeaway %}
+<div class="takeaway-card">
+
+    <h2>🎯 Main Lesson Takeaway</h2>
+
+    <p>
+        {{ takeaway }}
+    </p>
 
 </div>
 {% endif %}
@@ -382,39 +447,107 @@ function showLoading(){
         "Generating AI Lesson...";
 }
 
+let totalQuestions = {{ quiz|length if quiz else 0 }};
+let answeredQuestions = 0;
+let correctAnswers = 0;
+let answeredSet = new Set();
+
 function checkAnswer(
-    selected,
-    correct,
-    resultId,
-    explanationId
+selected,
+correct,
+resultId,
+explanationId
 ){
 
-    const result =
-        document.getElementById(resultId);
+const result =
+    document.getElementById(resultId);
 
-    const explanation =
-        document.getElementById(explanationId);
+const explanation =
+    document.getElementById(explanationId);
+
+if(!answeredSet.has(resultId)){
+
+    answeredSet.add(resultId);
+
+    answeredQuestions++;
 
     if(selected === correct){
+        correctAnswers++;
+    }
+}
 
-        result.innerHTML =
-            "✅ Correct!";
+if(selected === correct){
 
-        result.style.color =
-            "green";
+    result.innerHTML =
+        "<strong>✅ Correct!</strong>";
+
+    result.style.color =
+        "green";
+}
+else{
+
+    result.innerHTML =
+        "<strong>❌ Incorrect</strong>";
+
+    result.style.color =
+        "red";
+}
+
+explanation.style.display =
+    "block";
+
+checkQuizCompletion();
+
+}
+
+function checkQuizCompletion(){
+
+    if(answeredQuestions === totalQuestions){
+
+    const percentage =
+        Math.round(
+            (correctAnswers / totalQuestions) * 100
+        );
+
+    document.getElementById(
+        "quiz-score-card"
+    ).style.display = "block";
+
+    document.getElementById(
+        "score-text"
+    ).innerHTML =
+        `<strong>Score:</strong> ${correctAnswers}/${totalQuestions} (${percentage}%)`;
+
+    let message = "";
+
+    if(percentage >= 90){
+
+        message =
+            "Excellent work! You have mastered this lesson.";
+    }
+    else if(percentage >= 70){
+
+        message =
+            "Great job! You understood most of the lesson.";
+    }
+    else if(percentage >= 50){
+
+        message =
+            "Good effort. Review the explanations to strengthen your understanding.";
     }
     else{
 
-        result.innerHTML =
-            "❌ Incorrect";
-
-        result.style.color =
-            "red";
+        message =
+            "Consider reviewing the lesson and trying again.";
     }
 
-    explanation.style.display =
-        "block";
+    document.getElementById(
+        "score-message"
+    ).innerHTML = message;
 }
+
+}
+
 
 </script>
 

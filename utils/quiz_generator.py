@@ -22,26 +22,27 @@ def generate_quiz(text):
     1 = second option
     2 = third option
     3 = fourth option
-    - Include a clear explanation of why the answer is correct.
     - Explanations should teach the concept, not just restate the answer.
-    - Include a learning_point field containing the key concept the student should remember.
+    - Every question MUST contain an explanation field.
+    - Every question MUST contain a learning_point field.
+    - Do not omit either field.
 
     Example:
 
     [
-    {{
-        "question": "What is photosynthesis?",
-        "options": [
-        "A process plants use to make food",
-        "A type of animal",
-        "A chemical element",
-        "A weather condition"
-        ],
-        "answer": 0,
-        "explanation": "Photosynthesis is the process by which plants use sunlight, water, and carbon dioxide to produce food.",
-        "learning_point": "Plants make their own food through photosynthesis."
-    }}
-    ]
+  {{
+    "question": "What is photosynthesis?",
+    "options": [
+      "A process plants use to make food",
+      "A type of animal",
+      "A chemical element",
+      "A weather condition"
+    ],
+    "answer": 0,
+    "explanation": "Photosynthesis allows plants to make food using sunlight, water, and carbon dioxide.",
+    "learning_point": "Plants use photosynthesis to produce their own food."
+  }}
+]
 
     Lesson:
     {text}
@@ -58,4 +59,9 @@ def generate_quiz(text):
         temperature=0.3
     )
 
-    return response.choices[0].message.content.strip()
+    quiz_json = response.choices[0].message.content.strip()
+
+    print("QUIZ JSON:")
+    print(quiz_json)
+
+    return quiz_json
