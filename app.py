@@ -11,8 +11,11 @@ from utils.tts import generate_audio
 from utils.database import save_user
 from utils.quiz_generator import generate_quiz
 from utils.takeaway_generator import generate_takeaway
+from utils.tutor import ask_tutor
 
 app = Flask(__name__)
+
+app.config["CHAT_HISTORY"] = []
 
 UPLOAD_FOLDER = "static/uploads"
 AUDIO_FOLDER = "static/audio"
@@ -51,17 +54,22 @@ def upload():
     file.save(filepath)
 
     # Save user record
-    save_user(
-        full_name,
-        institution,
-        email,
-        file.filename
-    )
+
+# save_user(
+#     full_name,
+#     institution,
+#     email,
+#     file.filename
+# )
+
+
 
     start_time = time.time()
 
     # Extract PDF text
     text = extract_text(filepath)
+    app.config["CURRENT_DOCUMENT"] = text
+    app.config["CHAT_HISTORY"] = []
 
     if len(text.strip()) == 0:
         return """
@@ -84,15 +92,17 @@ def upload():
 
     # Generate audio lesson
     audio_path = "static/audio/summary.mp3"
+    
+    audio_summary = summary[:2500]
 
     generate_audio(
-        summary,
-        audio_path
-    )
+    audio_summary,
+    audio_path
+)       
 
     print("Audio Generation:", time.time() - start_time)
 
-    # Generate quiz
+        # Generate quiz
     quiz_json = generate_quiz(summary)
 
     print("\n========== QUIZ JSON ==========")
@@ -132,6 +142,37 @@ def upload():
     takeaway=takeaway
 )
 
+@app.route("/ask", methods=["POST"])
+def ask():
+
+    question = request.form["question"]
+
+    document_text = app.config.get(
+        "CURRENT_DOCUMENT",
+        ""
+    )
+
+    chat_history = app.config.get(
+        "CHAT_HISTORY",
+        []
+    )
+
+    answer = ask_tutor(
+        document_text,
+        question,
+        chat_history
+    )
+
+    chat_history.append(
+        {
+            "question": question,
+            "answer": answer
+        }
+    )
+
+    app.config["CHAT_HISTORY"] = chat_history
+
+    return answer
 
 if __name__ == "__main__":
     app.run(debug=True)

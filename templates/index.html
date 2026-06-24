@@ -212,6 +212,27 @@
         line-height:1.8;
         color:#333;
     }
+
+.tutor-card{
+    margin-top:30px;
+    padding:20px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid #cbd5e1;
+}
+
+.tutor-card h2{
+    margin-bottom:15px;
+}
+
+#answerBox{
+    margin-top:15px;
+    padding:15px;
+    border-radius:8px;
+    background:white;
+    border:1px solid #e2e8f0;
+    line-height:1.7;
+}
     </style>
 </head>
 
@@ -416,6 +437,23 @@
 </div>
 {% endif %}
 
+<div class="tutor-card">
+
+    <h2>💬 Ask LearnVox</h2>
+
+    <input
+        type="text"
+        id="question"
+        placeholder="Ask anything about this lesson">
+
+    <button onclick="askTutor()">
+        Ask
+    </button>
+
+    <div id="answerBox"></div>
+
+</div>
+
     <div class="features">
 
         <h3>What LearnVox Does</h3>
@@ -548,6 +586,34 @@ function checkQuizCompletion(){
 
 }
 
+async function askTutor(){
+
+    const question =
+        document.getElementById("question").value;
+
+    const response =
+        await fetch("/ask",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/x-www-form-urlencoded"
+            },
+
+            body:
+                "question=" +
+                encodeURIComponent(question)
+        });
+
+    const answer =
+        await response.text();
+
+    document.getElementById(
+        "answerBox"
+    ).innerHTML =
+        answer;
+}
 
 </script>
 

@@ -12,8 +12,7 @@ def generate_audio(text, output_file):
 
     response = client.audio.speech.create(
         model="gpt-4o-mini-tts",
-        voice="coral",
-        input=text
+        voice="alloy",
+        input=text[:2500]
     )
-
     response.stream_to_file(output_file)
