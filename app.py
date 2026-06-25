@@ -12,14 +12,13 @@ from utils.database import save_user
 from utils.quiz_generator import generate_quiz
 from utils.takeaway_generator import generate_takeaway
 from utils.tutor import ask_tutor
+from flask import Flask, render_template, request, session
 
 app = Flask(__name__)
-
-app.config["CHAT_HISTORY"] = []
+app.secret_key = "learnvox-super-secret-key-2026-frank"
 
 UPLOAD_FOLDER = "static/uploads"
 AUDIO_FOLDER = "static/audio"
-
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -55,21 +54,28 @@ def upload():
 
     # Save user record
 
-# save_user(
-#     full_name,
-#     institution,
-#     email,
-#     file.filename
-# )
+    
+    print("Before save_user()")
 
+    print("Calling save_user()...")
 
+    response = save_user(
+    full_name,
+    institution,
+    email,
+    file.filename
+    )
+
+    print("Returned from save_user()")
+    print(response)
 
     start_time = time.time()
 
     # Extract PDF text
     text = extract_text(filepath)
-    app.config["CURRENT_DOCUMENT"] = text
-    app.config["CHAT_HISTORY"] = []
+
+    session["CURRENT_DOCUMENT"] = text
+    session["CHAT_HISTORY"] = []
 
     if len(text.strip()) == 0:
         return """
@@ -92,7 +98,7 @@ def upload():
 
     # Generate audio lesson
     audio_path = "static/audio/summary.mp3"
-    
+
     audio_summary = summary[:2500]
 
     generate_audio(
@@ -147,15 +153,15 @@ def ask():
 
     question = request.form["question"]
 
-    document_text = app.config.get(
-        "CURRENT_DOCUMENT",
-        ""
-    )
+    document_text = session.get(
+    "CURRENT_DOCUMENT",
+    ""
+)
 
-    chat_history = app.config.get(
-        "CHAT_HISTORY",
-        []
-    )
+    chat_history = session.get(
+    "CHAT_HISTORY",
+    []
+)
 
     answer = ask_tutor(
         document_text,
@@ -170,7 +176,7 @@ def ask():
         }
     )
 
-    app.config["CHAT_HISTORY"] = chat_history
+    session["CHAT_HISTORY"] = chat_history
 
     return answer
 

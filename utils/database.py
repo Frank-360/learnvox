@@ -18,11 +18,15 @@ def save_user(full_name, institution, email, filename):
         "filename": filename
     }
 
+    print("DATA TO INSERT:", data)
+
     response = (
         supabase
         .table("learnvox_users")
         .insert(data)
         .execute()
     )
+
+    print("SUPABASE RESPONSE:", response)
 
     return response
