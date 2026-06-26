@@ -1,4 +1,3 @@
-from flask import Flask, render_template, request
 import os
 import markdown
 import time
@@ -15,7 +14,7 @@ from utils.tutor import ask_tutor
 from flask import Flask, render_template, request, session
 
 app = Flask(__name__)
-app.secret_key = "learnvox-super-secret-key-2026-frank"
+app.secret_key = os.getenv("SECRET_KEY")
 
 UPLOAD_FOLDER = "static/uploads"
 AUDIO_FOLDER = "static/audio"
@@ -55,27 +54,25 @@ def upload():
     # Save user record
 
     
-    print("Before save_user()")
-
-    print("Calling save_user()...")
-
-    response = save_user(
-    full_name,
-    institution,
-    email,
-    file.filename
+    save_user(
+        full_name,
+        institution,
+        email,
+        file.filename
     )
 
-    print("Returned from save_user()")
-    print(response)
 
     start_time = time.time()
 
     # Extract PDF text
     text = extract_text(filepath)
 
+    session.clear()
+
     session["CURRENT_DOCUMENT"] = text
     session["CHAT_HISTORY"] = []
+
+
 
     if len(text.strip()) == 0:
         return """

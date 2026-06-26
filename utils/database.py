@@ -18,15 +18,15 @@ def save_user(full_name, institution, email, filename):
         "filename": filename
     }
 
-    print("DATA TO INSERT:", data)
+    try:
+        response = (
+            supabase
+            .table("learnvox_users")
+            .insert(data)
+            .execute()
+        )
+        return response
 
-    response = (
-        supabase
-        .table("learnvox_users")
-        .insert(data)
-        .execute()
-    )
-
-    print("SUPABASE RESPONSE:", response)
-
-    return response
+    except Exception as e:
+        print(f"Database Error: {e}")
+        return None
