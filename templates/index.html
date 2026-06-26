@@ -245,11 +245,11 @@
     </h1>
 
     <h2 class="headline">
-    Building the Future of Personalized Learning
+    Your Personal AI Tutor for Every Study Material
     </h2>
 
     <p class="tagline">
-    LearnVox gives every student an AI teacher that turns study materials into interactive lessons, voice tutoring, and personalized learning experiences.
+    LearnVox transforms your study materials into an interactive AI tutor that explains concepts, answers questions, creates quizzes, generates audio lessons, and helps you master every topic with confidence.
     </p>
 
     <form action="/upload"
@@ -280,7 +280,13 @@
 
         <div class="upload-box">
 
-            <h3>Upload Your Study Material</h3>
+            <h3>Start Learning in Seconds</h3>
+
+            <br>
+
+            <p>
+                Upload your study material and let LearnVox transform it into an interactive learning experience.
+            </p>
 
             <br>
 
@@ -291,7 +297,7 @@
         </div>
 
         <button type="submit">
-            Generate AI Lesson
+            Start Learning
         </button>
 
         <div id="loading"
@@ -316,7 +322,13 @@
 
         <h2>📘 AI Lesson</h2>
 
-        {{ summary|safe }}
+        <a href="{{ lesson_file }}" download>
+            <button style="margin-bottom:20px;">
+                ⬇ Download Word
+            </button>
+        </a>
+
+{{ summary|safe }}
 
     </div>
     {% endif %}

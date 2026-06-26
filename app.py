@@ -12,6 +12,8 @@ from utils.quiz_generator import generate_quiz
 from utils.takeaway_generator import generate_takeaway
 from utils.tutor import ask_tutor
 from flask import Flask, render_template, request, session
+from utils.lesson_export import create_lesson_doc
+
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
@@ -91,7 +93,16 @@ def upload():
     summary = summarize(text)
     takeaway = generate_takeaway(summary)
 
+    lesson_file = create_lesson_doc(
+        full_name,
+        institution,
+        summary,
+        takeaway,
+        file.filename
+    )
+
     print("Summary Generation:", time.time() - start_time)
+
 
     # Generate audio lesson
     audio_path = "static/audio/summary.mp3"
@@ -142,7 +153,8 @@ def upload():
     summary=html_summary,
     audio_file=audio_path,
     quiz=quiz,
-    takeaway=takeaway
+    takeaway=takeaway,
+    lesson_file=lesson_file
 )
 
 @app.route("/ask", methods=["POST"])
