@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LearnVox AI Tutor</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+
+background:#f4f7fc;
+padding:40px;
+
+}
+
+.container{
+
+max-width:900px;
+margin:auto;
+background:white;
+padding:40px;
+border-radius:20px;
+box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+}
+
+.logo{
+
+font-size:42px;
+font-weight:bold;
+color:#2563eb;
+margin-bottom:10px;
+
+}
+
+.subtitle{
+
+font-size:18px;
+color:#666;
+margin-bottom:40px;
+
+}
+
+.welcome{
+
+background:#eff6ff;
+padding:25px;
+border-radius:15px;
+border-left:6px solid #2563eb;
+margin-bottom:30px;
+
+}
+
+.welcome h2{
+
+margin-bottom:10px;
+
+}
+
+.ask-box{
+
+margin-top:25px;
+
+}
+
+.ask-box input{
+
+width:100%;
+padding:18px;
+font-size:17px;
+border-radius:12px;
+border:1px solid #ddd;
+
+}
+
+.ask-box button{
+
+margin-top:15px;
+width:100%;
+padding:16px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:12px;
+font-size:16px;
+cursor:pointer;
+
+}
+
+.ask-box button:hover{
+
+background:#1d4ed8;
+
+}
+
+#answerBox{
+
+margin-top:20px;
+padding:20px;
+border-radius:12px;
+background:#f8fafc;
+line-height:1.8;
+
+display:none;
+
+}
+
+.study-modes{
+
+margin-top:50px;
+
+}
+
+.study-modes h2{
+
+margin-bottom:20px;
+
+}
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+
+}
+
+.card{
+
+padding:25px;
+background:#f8fbff;
+border-radius:15px;
+border:1px solid #dbeafe;
+text-align:center;
+cursor:pointer;
+transition:.3s;
+
+}
+
+.card:hover{
+
+transform:translateY(-5px);
+
+background:#2563eb;
+color:white;
+
+}
+
+.coming{
+
+margin-top:10px;
+font-size:14px;
+color:#777;
+
+}
+
+.footer{
+
+margin-top:50px;
+text-align:center;
+color:#888;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+LearnVox
+</div>
+
+<div class="subtitle">
+Your Personal AI Tutor
+</div>
+
+<div class="welcome">
+
+<h2>
+Hi {{ name }} 👋
+</h2>
+
+<p>
+
+I've finished reading
+
+<strong>{{ filename }}</strong>
+
+</p>
+
+<br>
+
+<p>
+
+I'm now ready to help you learn.
+
+Ask me anything or choose one of the study modes below.
+
+</p>
+
+</div>
+
+<div class="ask-box">
+
+<input
+id="question"
+placeholder="Ask me anything about this document...">
+
+<button onclick="askTutor()">
+
+Ask LearnVox
+
+</button>
+
+<div id="answerBox"></div>
+
+</div>
+
+<div class="study-modes">
+
+<h2>
+
+Study Modes
+
+</h2>
+
+<div class="grid">
+
+<div class="card">
+
+📖
+
+<h3>
+
+Summary Mode
+
+</h3>
+
+<p class="coming">
+
+Coming next
+
+</p>
+
+</div>
+
+<div class="card">
+
+🎧
+
+<h3>
+
+Listen Mode
+
+</h3>
+
+<p class="coming">
+
+Coming next
+
+</p>
+
+</div>
+
+<div class="card">
+
+📝
+
+<h3>
+
+Flashcard Mode
+
+</h3>
+
+<p class="coming">
+
+Coming next
+
+</p>
+
+</div>
+
+<div class="card">
+
+❓
+
+<h3>
+
+Quiz Mode
+
+</h3>
+
+<p class="coming">
+
+Coming next
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+
+Powered by LearnVox AI
+
+</div>
+
+</div>
+
+<script>
+
+async function askTutor(){
+
+const question=document.getElementById("question").value;
+
+if(question=="") return;
+
+const response=await fetch("/ask",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/x-www-form-urlencoded"
+},
+
+body:"question="+encodeURIComponent(question)
+
+});
+
+const answer=await response.text();
+
+const box=document.getElementById("answerBox");
+
+box.style.display="block";
+
+box.innerHTML=answer;
+
+}
+
+</script>
+
+</body>
+</html>
