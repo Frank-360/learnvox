@@ -1,635 +1,770 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnVox</title>
 
-    <style>
+    <title>LearnVox | Your Personal AI Tutor</title>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/index.css') }}">
 
-        body{
-            background:#f5f7fb;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            min-height:100vh;
-            padding:20px;
-        }
-
-        .container{
-            background:white;
-            width:100%;
-            max-width:800px;
-            padding:40px;
-            border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .logo{
-            font-size:42px;
-            font-weight:bold;
-            color:#2563eb;
-            text-align:center;
-            margin-bottom:10px;
-        }
-
-        .headline{
-            font-size:32px;
-            font-weight:bold;
-            margin-bottom:15px;
-            color:#222;
-            text-align:center;
-        }
-
-        .tagline{
-            color:#555;
-            font-size:18px;
-            line-height:1.7;
-            margin-bottom:30px;
-            text-align:center;
-        }
-
-        .upload-box{
-            border:2px dashed #2563eb;
-            border-radius:15px;
-            padding:30px;
-            margin-bottom:20px;
-            background:#f8fbff;
-            text-align:center;
-        }
-
-        input[type="text"],
-        input[type="email"]{
-            width:100%;
-            padding:12px;
-            border:1px solid #ccc;
-            border-radius:10px;
-            font-size:16px;
-        }
-
-        button{
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:15px 30px;
-            border-radius:10px;
-            font-size:16px;
-            cursor:pointer;
-            transition:0.3s;
-            width:100%;
-        }
-
-        button:hover{
-            background:#1d4ed8;
-        }
-
-        .features{
-            margin-top:30px;
-        }
-
-        .features h3{
-            margin-bottom:15px;
-        }
-
-        .features ul{
-            line-height:2;
-            color:#444;
-        }
-
-        .result-card{
-            margin-top:30px;
-            text-align:left;
-            padding:20px;
-            border-radius:12px;
-            background:#f8fbff;
-            border:1px solid #dbeafe;
-        }
-
-        .result-card h2{
-            margin-bottom:15px;
-            color:#2563eb;
-        }
-
-        .audio-card{
-            margin-top:30px;
-            padding:20px;
-            border-radius:12px;
-            background:#f0fdf4;
-            border:1px solid #bbf7d0;
-        }
-
-        .audio-card h2{
-            margin-bottom:15px;
-        }
-
-        audio{
-            width:100%;
-        }
-
-        .quiz-card{
-            margin-top:30px;
-            text-align:left;
-            padding:20px;
-            border-radius:12px;
-            background:#fffbea;
-            border:1px solid #fde68a;
-        }
-
-        .quiz-card h2{
-            margin-bottom:15px;
-            color:#b45309;
-        }
-
-        .quiz-card pre{
-            white-space:pre-wrap;
-            line-height:1.7;
-        }
-
-
-    .question-block{
-        margin-top:20px;
-    }
-
-    .option-label{
-        display:block;
-        margin:10px 0;
-        padding:12px;
-        border-radius:8px;
-        background:#f8fafc;
-        cursor:pointer;
-    }
-
-    .option-label:hover{
-        background:#eef2ff;
-    }
-
-    .answer-result{
-        margin-top:10px;
-        font-weight:bold;
-    }
-
-.explanation-box{
-    margin-top:10px;
-    padding:15px;
-    background:#f8fbff;
-    border-left:4px solid #2563eb;
-    border-radius:8px;
-    line-height:1.7;
-}
-
-.explanation-box strong{
-    color:#1e40af;
-}
-        .footer{
-            margin-top:30px;
-            color:#777;
-            font-size:14px;
-            text-align:center;
-        }
-
-
-        .takeaway-card{
-        margin-top:30px;
-        padding:20px;
-        border-radius:12px;
-        background:#eff6ff;
-        border:1px solid #93c5fd;
-    }
-
-    .takeaway-card h2{
-        color:#1d4ed8;
-        margin-bottom:12px;
-    }
-
-    .takeaway-card p{
-        line-height:1.8;
-        color:#333;
-    }
-
-.tutor-card{
-    margin-top:30px;
-    padding:20px;
-    border-radius:12px;
-    background:#f8fafc;
-    border:1px solid #cbd5e1;
-}
-
-.tutor-card h2{
-    margin-bottom:15px;
-}
-
-#answerBox{
-    margin-top:15px;
-    padding:15px;
-    border-radius:8px;
-    background:white;
-    border:1px solid #e2e8f0;
-    line-height:1.7;
-}
-    </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- ===========================
+        NAVIGATION
+=========================== -->
 
-    <h1 class="logo">
-    LearnVox
-    </h1>
+<header class="navbar">
 
-    <h2 class="headline">
-    Your Personal AI Tutor for Every Study Material
-    </h2>
+    <div class="container nav-container">
 
-    <p class="tagline">
-    LearnVox transforms your study materials into an interactive AI tutor that explains concepts, answers questions, creates quizzes, generates audio lessons, and helps you master every topic with confidence.
-    </p>
+        <a href="/" class="logo">
 
-    <form action="/upload"
-          method="POST"
-          enctype="multipart/form-data"
-          onsubmit="showLoading()">
+            <img
+                src="{{ url_for('static', filename='images/logo.png') }}"
+                alt="LearnVox Logo">
 
-        <input type="text"
-               name="full_name"
-               placeholder="Full Name"
-               required>
+            <span>LearnVox</span>
 
-        <br><br>
-
-        <input type="text"
-               name="institution"
-               placeholder="Institution"
-               required>
-
-        <br><br>
-
-        <input type="email"
-               name="email"
-               placeholder="Email Address"
-               required>
-
-        <br><br>
-
-        <div class="upload-box">
-
-            <h3>Start Learning in Seconds</h3>
-
-            <br>
-
-            <p>
-                Upload your study material and let LearnVox transform it into an interactive learning experience.
-            </p>
-
-            <br>
-
-            <input type="file"
-                   name="file"
-                   required>
-
-        </div>
-
-        <button type="submit">
-            Start Learning
-        </button>
-
-        <div id="loading"
-             style="display:none; margin-top:30px; text-align:center;">
-
-            <h2>⏳ Generating AI Lesson...</h2>
-
-            <p>
-                Please wait while LearnVox processes your document.
-            </p>
-
-            <p>
-                This may take 10–30 seconds depending on document size.
-            </p>
-
-        </div>
-
-    </form>
-
-    {% if summary %}
-    <div class="result-card">
-
-        <h2>📘 AI Lesson</h2>
-
-        <a href="{{ lesson_file }}" download>
-            <button style="margin-bottom:20px;">
-                ⬇ Download Word
-            </button>
         </a>
 
-{{ summary|safe }}
+        <nav>
+
+            <a href="#features">Features</a>
+
+            <a href="#upload">Start Learning</a>
+
+        </nav>
 
     </div>
-    {% endif %}
+
+</header>
 
 
-    {% if audio_file %}
-    <div class="audio-card">
 
-        <h2>🎧 Audio Lesson</h2>
+<!-- ===========================
+            HERO
+=========================== -->
 
-        <audio controls>
-            <source src="{{ audio_file }}" type="audio/mpeg">
-        </audio>
+<main>
+
+<section class="hero">
+
+    <div class="container hero-container">
+
+        <div class="hero-left">
+
+            <span class="badge">
+
+                ✨ AI Powered Learning
+
+            </span>
+
+            <h1>
+
+                The AI Tutor That Learns Before It Teaches.
+
+            </h1>
+
+            <h2>
+
+                AI That Doesn't Just Summarize — It Teaches.
+
+            </h2>
+
+            <p>
+
+                Upload your notes, textbooks, lecture slides or PDFs.
+
+                LearnVox studies your material first, understands every
+                important concept, then teaches you exactly how you
+                learn best.
+
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#upload">
+
+                    <button class="primary-btn">
+
+                        Meet Your AI Tutor →
+
+                    </button>
+
+                </a>
+
+                <a href="#demo">
+
+                    <button class="secondary-btn">
+
+                        Watch Demo
+
+                    </button>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="hero-right">
+
+            <div class="hero-card">
+
+                <div class="hero-card-header">
+
+                    🧠 LearnVox AI
+
+                </div>
+
+                <div class="hero-card-body">
+
+                    <p>📖 Reading document...</p>
+
+                    <p>🧠 Understanding concepts...</p>
+
+                    <p>🎓 Preparing AI Tutor...</p>
+
+                    <p class="ready">
+
+                        ✅ Ready to Teach
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
-    {% endif %}
 
-{% if quiz %}
+</section>
 
-<div class="quiz-card">
 
-<h2>📝 Practice Quiz</h2>
 
-{% for q in quiz %}
+<!-- ===========================
+        DEMO
+=========================== -->
 
-{% set qid = loop.index %}
+<section
+    id="demo"
+    class="demo-section">
 
-<div class="question-block">
+    <div class="container">
 
-    <p>
-        <strong>
-            Question {{ qid }}:
-            {{ q.question }}
-        </strong>
-    </p>
+        <h2>
 
-    {% for option in q.options %}
+            See LearnVox in Action
 
-    <label class="option-label">
+        </h2>
 
-        <input
-            type="radio"
-            name="question{{ qid }}"
-            onclick="checkAnswer(
-                {{ loop.index0 }},
-                {{ q.answer }},
-                'result{{ qid }}',
-                'explanation{{ qid }}'
-            )"
-        >
+        <p class="demo-text">
 
-        {{ option }}
+            Ask questions naturally.
 
-    </label>
+            LearnVox explains your study material like
+            a real tutor.
 
-    {% endfor %}
+        </p>
 
-    <div
-        id="result{{ qid }}"
-        class="answer-result">
+        <div class="chat-window">
+
+            <div class="message student">
+
+                <div class="avatar">
+
+                    👨‍🎓
+
+                </div>
+
+                <div class="bubble">
+
+                    Explain Newton's First Law.
+
+                </div>
+
+            </div>
+
+
+            <div class="message ai">
+
+                <div class="avatar">
+
+                    🤖
+
+                </div>
+
+                <div class="bubble">
+
+                    Imagine you're sitting on a bus.
+
+                    When the bus suddenly stops,
+
+                    your body keeps moving forward.
+
+                    That's because objects naturally
+
+                    continue in their current state
+
+                    unless another force acts on them.
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div
-        id="explanation{{ qid }}"
-        class="explanation-box"
-        style="display:none;">
+</section>
+
+
+
+<!-- ===========================
+        UPLOAD
+=========================== -->
+
+<section
+    id="upload"
+    class="upload-section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <span class="section-badge">
+
+                🚀 Start Your Learning Session
+
+            </span>
+
+            <h2>
+
+                Meet Your AI Tutor
+
+            </h2>
+
+            <p>
+
+                Upload your study material and let
+                LearnVox understand it before teaching you.
+
+            </p>
+
+        </div>
+
+
+        <div class="upload-card">
+
+            <form
+                action="/upload"
+                method="POST"
+                enctype="multipart/form-data"
+                onsubmit="showLoading()">
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+
+                        <label>
+
+                            Full Name
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="full_name"
+                            placeholder="Enter your full name"
+                            required>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label>
+
+                            Institution
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="institution"
+                            placeholder="University / School"
+                            required>
+
+                    </div>
+
+
+                    <div class="input-group full-width">
+
+                        <label>
+
+                            Email Address
+
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="upload-box">
+
+                    <div class="upload-icon">
+
+                        📘
+
+                    </div>
+
+                    <h3>
+
+                        Upload Your Study Material
+
+                    </h3>
+
+                    <p>
+
+                        PDF • Lecture Notes • Textbooks • Slides
+
+                    </p>
+
+                    <input
+                        type="file"
+                        name="file"
+                        required>
+
+                </div>
+
+                <button
+                    class="upload-btn">
+
+                    Meet Your AI Tutor →
+
+                </button>
+
+            </form>
+
+
+            <div
+                id="loading"
+                style="display:none;">
+
+                <div class="loading-card">
+
+                    <h3>
+
+                        Preparing Your Tutor...
+
+                    </h3>
+
+                    <div class="loading-step">
+
+                        📖 Reading your document...
+
+                    </div>
+
+                    <div class="loading-step">
+
+                        🧠 Understanding concepts...
+
+                    </div>
+
+                    <div class="loading-step">
+
+                        🎓 Becoming your AI tutor...
+
+                    </div>
+
+                    <div class="loading-step success">
+
+                        ✅ Ready!
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===========================
+        STUDY MODES
+=========================== -->
+
+<section id="features" class="features">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <span class="section-badge">
+
+                🎯 Choose Your Learning Style
+
+            </span>
+
+            <h2>
+
+                Learn Your Way
+
+            </h2>
+
+            <p>
+
+                LearnVox adapts to the way you prefer to study.
+
+            </p>
+
+        </div>
+
+        <div class="feature-grid">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">💬</div>
+
+                <h3>AI Tutor</h3>
+
+                <p>
+                    Ask questions naturally and receive detailed explanations.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">📖</div>
+
+                <h3>Summary</h3>
+
+                <p>
+                    Turn lengthy documents into concise study notes.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">🎧</div>
+
+                <h3>Listen</h3>
+
+                <p>
+                    Convert your lesson into natural AI audio.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">📝</div>
+
+                <h3>Flashcards</h3>
+
+                <p>
+                    Memorize concepts faster with AI flashcards.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">❓</div>
+
+                <h3>Quiz</h3>
+
+                <p>
+                    Instantly test your understanding.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">🎓</div>
+
+                <h3>Teach Me</h3>
+
+                <p>
+                    Let LearnVox teach the lesson step by step.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===========================
+        BENEFITS
+=========================== -->
+
+<section class="benefits">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <span class="section-badge">
+
+                ⭐ Why Students Love LearnVox
+
+            </span>
+
+            <h2>
+
+                Smarter Learning.
+                Better Results.
+
+            </h2>
+
+        </div>
+
+        <div class="benefit-grid">
+
+            <div class="benefit-card">
+
+                <h3>⚡ Learn Faster</h3>
+
+                <p>
+
+                    Understand complex topics in minutes instead of hours.
+
+                </p>
+
+            </div>
+
+            <div class="benefit-card">
+
+                <h3>🎧 Study Anywhere</h3>
+
+                <p>
+
+                    Listen while commuting, walking or relaxing.
+
+                </p>
+
+            </div>
+
+            <div class="benefit-card">
+
+                <h3>🎯 Remember More</h3>
+
+                <p>
+
+                    Reinforce learning with quizzes and flashcards.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===========================
+        HOW IT WORKS
+=========================== -->
+
+<section class="steps">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <span class="section-badge">
+
+                🚀 How It Works
+
+            </span>
+
+            <h2>
+
+                Four Simple Steps
+
+            </h2>
+
+        </div>
+
+        <div class="step-grid">
+
+            <div class="step-card">
+
+                <div class="step-number">
+
+                    1
+
+                </div>
+
+                <h3>
+
+                    Upload
+
+                </h3>
+
+                <p>
+
+                    Upload your textbook,
+                    lecture notes or PDF.
+
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">
+
+                    2
+
+                </div>
+
+                <h3>
+
+                    AI Studies
+
+                </h3>
+
+                <p>
+
+                    LearnVox understands your document before answering.
+
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">
+
+                    3
+
+                </div>
+
+                <h3>
+
+                    Choose Learning Style
+
+                </h3>
+
+                <p>
+
+                    Chat, Summary, Audio,
+                    Quiz or Flashcards.
+
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">
+
+                    4
+
+                </div>
+
+                <h3>
+
+                    Master Your Subject
+
+                </h3>
+
+                <p>
+
+                    Learn faster with your AI Tutor.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===========================
+            FOOTER
+=========================== -->
+
+<footer>
+
+    <div class="container">
+
+        <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            alt="LearnVox Logo"
+            class="footer-logo">
+
+        <h3>
+
+            LearnVox
+
+        </h3>
 
         <p>
-            <strong>📖 Explanation:</strong><br>
-            {{ q.explanation }}
+
+            The AI Tutor That Learns Before It Teaches.
+
         </p>
 
-        {% if q.learning_point %}
-        <p style="margin-top:10px;">
-            <strong>🎯 Key Learning Point:</strong><br>
-            {{ q.learning_point }}
+        <p>
+
+            Built by Intechrity Consulting
+
         </p>
-        {% endif %}
+
+        <p>
+
+            © 2026 LearnVox. All rights reserved.
+
+        </p>
 
     </div>
 
-</div>
+</footer>
 
-<hr style="margin:20px 0;">
+</main>
 
-{% endfor %}
 
-</div>
-{% endif %}
-
-   
-
-<div id="quiz-score-card"
-     style="display:none;
-            margin-top:20px;
-            padding:20px;
-            border-radius:12px;
-            background:#ecfdf5;
-            border:1px solid #86efac;">
-
-    <h2>🏆 Quiz Complete</h2>
-
-    <p id="score-text"></p>
-
-    <p id="score-message"></p>
-
-</div>
-
-{% if takeaway %}
-<div class="takeaway-card">
-
-    <h2>🎯 Main Lesson Takeaway</h2>
-
-    <p>
-        {{ takeaway }}
-    </p>
-
-</div>
-{% endif %}
-
-<div class="tutor-card">
-
-    <h2>💬 Ask LearnVox</h2>
-
-    <input
-        type="text"
-        id="question"
-        placeholder="Ask anything about this lesson">
-
-    <button onclick="askTutor()">
-        Ask
-    </button>
-
-    <div id="answerBox"></div>
-
-</div>
-
-    <div class="features">
-
-        <h3>What LearnVox Does</h3>
-
-        <ul>
-            <li>📄 Extracts knowledge from study materials</li>
-            <li>🤖 Creates AI-powered lessons</li>
-            <li>🎧 Generates audio explanations</li>
-            <li>📝 Builds practice quizzes automatically</li>
-            <li>⚡ Helps students learn faster and remember longer</li>
-        </ul>
-
-    </div>
-
-    <div class="footer">
-        Powered by AI • Built by Intechrity Consulting
-    </div>
-
-</div>
-
-<script>
-function showLoading(){
-
-    document.getElementById("loading").style.display = "block";
-
-    document.querySelector("button").disabled = true;
-
-    document.querySelector("button").innerText =
-        "Generating AI Lesson...";
-}
-
-let totalQuestions = {{ quiz|length if quiz else 0 }};
-let answeredQuestions = 0;
-let correctAnswers = 0;
-let answeredSet = new Set();
-
-function checkAnswer(
-selected,
-correct,
-resultId,
-explanationId
-){
-
-const result =
-    document.getElementById(resultId);
-
-const explanation =
-    document.getElementById(explanationId);
-
-if(!answeredSet.has(resultId)){
-
-    answeredSet.add(resultId);
-
-    answeredQuestions++;
-
-    if(selected === correct){
-        correctAnswers++;
-    }
-}
-
-if(selected === correct){
-
-    result.innerHTML =
-        "<strong>✅ Correct!</strong>";
-
-    result.style.color =
-        "green";
-}
-else{
-
-    result.innerHTML =
-        "<strong>❌ Incorrect</strong>";
-
-    result.style.color =
-        "red";
-}
-
-explanation.style.display =
-    "block";
-
-checkQuizCompletion();
-
-}
-
-function checkQuizCompletion(){
-
-    if(answeredQuestions === totalQuestions){
-
-    const percentage =
-        Math.round(
-            (correctAnswers / totalQuestions) * 100
-        );
-
-    document.getElementById(
-        "quiz-score-card"
-    ).style.display = "block";
-
-    document.getElementById(
-        "score-text"
-    ).innerHTML =
-        `<strong>Score:</strong> ${correctAnswers}/${totalQuestions} (${percentage}%)`;
-
-    let message = "";
-
-    if(percentage >= 90){
-
-        message =
-            "Excellent work! You have mastered this lesson.";
-    }
-    else if(percentage >= 70){
-
-        message =
-            "Great job! You understood most of the lesson.";
-    }
-    else if(percentage >= 50){
-
-        message =
-            "Good effort. Review the explanations to strengthen your understanding.";
-    }
-    else{
-
-        message =
-            "Consider reviewing the lesson and trying again.";
-    }
-
-    document.getElementById(
-        "score-message"
-    ).innerHTML = message;
-}
-
-}
-
-async function askTutor(){
-
-    const question =
-        document.getElementById("question").value;
-
-    const response =
-        await fetch("/ask",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/x-www-form-urlencoded"
-            },
-
-            body:
-                "question=" +
-                encodeURIComponent(question)
-        });
-
-    const answer =
-        await response.text();
-
-    document.getElementById(
-        "answerBox"
-    ).innerHTML =
-        answer;
-}
-
+<script
+src="{{ url_for('static', filename='js/index.js') }}">
 </script>
 
 </body>
+
 </html>
-
-

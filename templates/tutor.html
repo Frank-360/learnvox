@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -7,172 +8,9 @@
 
 <title>LearnVox AI Tutor</title>
 
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-
-background:#f4f7fc;
-padding:40px;
-
-}
-
-.container{
-
-max-width:900px;
-margin:auto;
-background:white;
-padding:40px;
-border-radius:20px;
-box-shadow:0 15px 40px rgba(0,0,0,.08);
-
-}
-
-.logo{
-
-font-size:42px;
-font-weight:bold;
-color:#2563eb;
-margin-bottom:10px;
-
-}
-
-.subtitle{
-
-font-size:18px;
-color:#666;
-margin-bottom:40px;
-
-}
-
-.welcome{
-
-background:#eff6ff;
-padding:25px;
-border-radius:15px;
-border-left:6px solid #2563eb;
-margin-bottom:30px;
-
-}
-
-.welcome h2{
-
-margin-bottom:10px;
-
-}
-
-.ask-box{
-
-margin-top:25px;
-
-}
-
-.ask-box input{
-
-width:100%;
-padding:18px;
-font-size:17px;
-border-radius:12px;
-border:1px solid #ddd;
-
-}
-
-.ask-box button{
-
-margin-top:15px;
-width:100%;
-padding:16px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:12px;
-font-size:16px;
-cursor:pointer;
-
-}
-
-.ask-box button:hover{
-
-background:#1d4ed8;
-
-}
-
-#answerBox{
-
-margin-top:20px;
-padding:20px;
-border-radius:12px;
-background:#f8fafc;
-line-height:1.8;
-
-display:none;
-
-}
-
-.study-modes{
-
-margin-top:50px;
-
-}
-
-.study-modes h2{
-
-margin-bottom:20px;
-
-}
-
-.grid{
-
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-
-}
-
-.card{
-
-padding:25px;
-background:#f8fbff;
-border-radius:15px;
-border:1px solid #dbeafe;
-text-align:center;
-cursor:pointer;
-transition:.3s;
-
-}
-
-.card:hover{
-
-transform:translateY(-5px);
-
-background:#2563eb;
-color:white;
-
-}
-
-.coming{
-
-margin-top:10px;
-font-size:14px;
-color:#777;
-
-}
-
-.footer{
-
-margin-top:50px;
-text-align:center;
-color:#888;
-
-}
-
-</style>
+<link
+rel="stylesheet"
+href="{{ url_for('static', filename='css/tutor.css') }}">
 
 </head>
 
@@ -180,45 +18,92 @@ color:#888;
 
 <div class="container">
 
+<header>
+
 <div class="logo">
+
 LearnVox
+
 </div>
 
-<div class="subtitle">
+<p class="tagline">
+
 Your Personal AI Tutor
+
+</p>
+
+</header>
+
+
+<section class="welcome-card">
+
+<div class="file-icon">
+
+📘
+
 </div>
 
-<div class="welcome">
+<div>
 
 <h2>
-Hi {{ name }} 👋
+
+Hello {{ name }} 👋
+
 </h2>
 
 <p>
 
-I've finished reading
+I've finished studying
 
 <strong>{{ filename }}</strong>
 
 </p>
 
-<br>
-
 <p>
 
-I'm now ready to help you learn.
+I'm ready whenever you are.
 
-Ask me anything or choose one of the study modes below.
+Ask me anything or choose a study mode below.
 
 </p>
 
 </div>
 
-<div class="ask-box">
+</section>
+
+
+<section class="status-card">
+
+<h3>
+
+AI Tutor Status
+
+</h3>
+
+<div class="status">
+
+<span>✅ Document Read</span>
+
+<span>✅ Concepts Understood</span>
+
+<span>✅ Ready To Teach</span>
+
+</div>
+
+</section>
+
+
+<section class="chat-card">
+
+<h2>
+
+💬 Chat with LearnVox
+
+</h2>
 
 <input
 id="question"
-placeholder="Ask me anything about this document...">
+placeholder="Ask anything about your document...">
 
 <button onclick="askTutor()">
 
@@ -228,9 +113,10 @@ Ask LearnVox
 
 <div id="answerBox"></div>
 
-</div>
+</section>
 
-<div class="study-modes">
+
+<section class="study-section">
 
 <h2>
 
@@ -238,122 +124,77 @@ Study Modes
 
 </h2>
 
-<div class="grid">
+<div class="cards">
 
 <div class="card">
 
-📖
+<div class="emoji">📖</div>
 
-<h3>
+<h3>Summary</h3>
 
-Summary Mode
-
-</h3>
-
-<p class="coming">
-
-Coming next
-
-</p>
+<p>Generate concise study notes.</p>
 
 </div>
 
 <div class="card">
 
-🎧
+<div class="emoji">🎧</div>
 
-<h3>
+<h3>Listen</h3>
 
-Listen Mode
-
-</h3>
-
-<p class="coming">
-
-Coming next
-
-</p>
+<p>Turn lessons into audio.</p>
 
 </div>
 
 <div class="card">
 
-📝
+<div class="emoji">📝</div>
 
-<h3>
+<h3>Flashcards</h3>
 
-Flashcard Mode
-
-</h3>
-
-<p class="coming">
-
-Coming next
-
-</p>
+<p>Memorize faster.</p>
 
 </div>
 
 <div class="card">
 
-❓
+<div class="emoji">❓</div>
 
-<h3>
+<h3>Quiz</h3>
 
-Quiz Mode
+<p>Test your understanding.</p>
 
-</h3>
+</div>
 
-<p class="coming">
+<div class="card">
 
-Coming next
+<div class="emoji">🎓</div>
 
-</p>
+<h3>Teach Me</h3>
+
+<p>Interactive AI tutoring.</p>
 
 </div>
 
 </div>
 
-</div>
+</section>
 
-<div class="footer">
+
+<footer>
 
 Powered by LearnVox AI
 
-</div>
+<br>
+
+Built by Intechrity Consulting
+
+</footer>
 
 </div>
 
-<script>
-
-async function askTutor(){
-
-const question=document.getElementById("question").value;
-
-if(question=="") return;
-
-const response=await fetch("/ask",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/x-www-form-urlencoded"
-},
-
-body:"question="+encodeURIComponent(question)
-
-});
-
-const answer=await response.text();
-
-const box=document.getElementById("answerBox");
-
-box.style.display="block";
-
-box.innerHTML=answer;
-
-}
-
+<script
+src="{{ url_for('static', filename='js/tutor.js') }}">
 </script>
 
 </body>
