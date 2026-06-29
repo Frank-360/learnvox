@@ -1,67 +1,73 @@
-from openai import OpenAI
+import json
 import os
+from openai import OpenAI
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_quiz(text):
 
-    prompt = f"""
-    Create exactly 5 multiple-choice questions from the lesson below.
+def generate_quiz(document):
 
-    Return ONLY a valid JSON array.
+    system_prompt = """
+You are LearnVox AI.
 
-    Rules:
-    - Return JSON only.
-    - Do not use markdown.
-    - Do not wrap the JSON in ```json blocks.
-    - Each question must have exactly 4 options.
-    - The answer field must contain the index of the correct answer:
-    0 = first option
-    1 = second option
-    2 = third option
-    3 = fourth option
-    - Explanations should teach the concept, not just restate the answer.
-    - Every question MUST contain an explanation field.
-    - Every question MUST contain a learning_point field.
-    - Do not omit either field.
+You are creating a quiz for a student.
 
-    Example:
+Return ONLY valid JSON.
 
-    [
-  {{
-    "question": "What is photosynthesis?",
-    "options": [
-      "A process plants use to make food",
-      "A type of animal",
-      "A chemical element",
-      "A weather condition"
-    ],
-    "answer": 0,
-    "explanation": "Photosynthesis allows plants to make food using sunlight, water, and carbon dioxide.",
-    "learning_point": "Plants use photosynthesis to produce their own food."
-  }}
-]
+Generate exactly 10 multiple-choice questions.
 
-    Lesson:
-    {text}
-    """
+Rules:
+
+- Four options.
+- Only one correct answer.
+- Questions should become progressively harder.
+- Cover different parts of the uploaded document.
+
+Return ONLY this structure.
+
+{
+  "questions":[
+    {
+      "question":"",
+      "options":[
+        "",
+        "",
+        "",
+        ""
+      ],
+      "answer":0,
+      "explanation":""
+    }
+  ]
+}
+
+The answer field must be the option index:
+0,1,2 or 3.
+
+Do not include markdown.
+
+Do not include code fences.
+
+Return JSON only.
+"""
 
     response = client.chat.completions.create(
+
         model="gpt-4.1-mini",
+
         messages=[
             {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
                 "role": "user",
-                "content": prompt
+                "content": document
             }
-        ],
-        temperature=0.3
+        ]
+
     )
 
-    quiz_json = response.choices[0].message.content.strip()
-
-    print("QUIZ JSON:")
-    print(quiz_json)
-
-    return quiz_json
+    return json.loads(
+        response.choices[0].message.content
+    )

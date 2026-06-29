@@ -3,199 +3,473 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>LearnVox AI Tutor</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<link
-rel="stylesheet"
-href="{{ url_for('static', filename='css/tutor.css') }}">
+    <title>
+
+        LearnVox | AI Personal Tutor
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tutor.css') }}">
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="dashboard">
 
-<header>
+    <!-- =========================================
+                    HEADER
+    ========================================== -->
 
-<div class="logo">
+    <header class="topbar">
 
-LearnVox
+        <div class="brand">
 
-</div>
+            <img
+                src="{{ url_for('static', filename='images/logo.png') }}"
+                alt="LearnVox Logo"
+                class="logo">
 
-<p class="tagline">
+            <div>
 
-Your Personal AI Tutor
+                <h1>
 
-</p>
+                    LearnVox
 
-</header>
+                </h1>
 
+                <p>
 
-<section class="welcome-card">
+                    AI That Doesn't Just Summarize —
+                    It Teaches.
 
-<div class="file-icon">
+                </p>
 
-📘
+            </div>
 
-</div>
+        </div>
 
-<div>
+        <div class="user-info">
 
-<h2>
+            <div class="user-avatar">
 
-Hello {{ name }} 👋
+                👤
 
-</h2>
+            </div>
 
-<p>
+            <div>
 
-I've finished studying
+                <strong>
 
-<strong>{{ filename }}</strong>
+                    {{ name }}
 
-</p>
+                </strong>
 
-<p>
+                <p>
 
-I'm ready whenever you are.
+                    Student
 
-Ask me anything or choose a study mode below.
+                </p>
 
-</p>
+            </div>
 
-</div>
+        </div>
 
-</section>
-
-
-<section class="status-card">
-
-<h3>
-
-AI Tutor Status
-
-</h3>
-
-<div class="status">
-
-<span>✅ Document Read</span>
-
-<span>✅ Concepts Understood</span>
-
-<span>✅ Ready To Teach</span>
-
-</div>
-
-</section>
+    </header>
 
 
-<section class="chat-card">
 
-<h2>
+    <!-- =========================================
+                DOCUMENT STATUS
+    ========================================== -->
 
-💬 Chat with LearnVox
+    <section class="document-card">
 
-</h2>
+        <div class="document-left">
 
-<input
-id="question"
-placeholder="Ask anything about your document...">
+            <div class="document-icon">
 
-<button onclick="askTutor()">
+                📘
 
-Ask LearnVox
+            </div>
+
+            <div>
+
+                <h2>
+
+                    {{ filename }}
+
+                </h2>
+
+                <p>
+
+                    Your AI tutor has completely studied
+                    this document and is ready to teach you.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="document-status">
+
+            <div class="status success">
+
+                ✅ Document Read
+
+            </div>
+
+            <div class="status success">
+
+                🧠 Concepts Understood
+
+            </div>
+
+            <div class="status success">
+
+                🎓 Ready To Teach
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+                LEARNING MODES
+    ========================================== -->
+
+    <section class="learning-panel">
+
+        <div class="panel-title">
+
+            <h2>
+
+                Choose Your Learning Style
+
+            </h2>
+
+            <p>
+
+                LearnVox adapts to the way you learn best.
+
+            </p>
+
+        </div>
+
+        <div class="mode-grid">
+
+            <!-- SUMMARY -->
+
+         <button
+    class="mode-card"
+    onclick="openQuickLearn()">
+
+    <div class="mode-icon">
+
+        ⚡
+
+    </div>
+
+    <h3>
+
+        Quick Learn
+
+    </h3>
+
+    <p>
+
+        Learn the essentials in minutes.
+
+    </p>
 
 </button>
 
-<div id="answerBox"></div>
 
-</section>
+<button
+                class="mode-card"
+                onclick="openTeach()">
+
+                <div class="mode-icon">
+
+                    🎓
+
+                </div>
+
+                <h3>
+
+                    AI Tutor
+
+                </h3>
+
+                <p>
+                    Start a guided tutoring session
+
+                </p>
+
+            </button>
 
 
-<section class="study-section">
 
-<h2>
 
-Study Modes
+            <!-- LISTEN -->
 
-</h2>
+            <button
+                class="mode-card"
+                onclick="openListen()">
 
-<div class="cards">
+                <div class="mode-icon">
 
-<div class="card">
+                    🎧
 
-<div class="emoji">📖</div>
+                </div>
 
-<h3>Summary</h3>
+                <h3>
 
-<p>Generate concise study notes.</p>
+                    Listen
+
+                </h3>
+
+                <p>
+
+                    Learn through AI audio.
+
+                </p>
+
+            </button>
+
+
+
+            <!-- FLASHCARDS -->
+
+            <button
+                class="mode-card"
+                onclick="openFlashcards()">
+
+                <div class="mode-icon">
+
+                    📝
+
+                </div>
+
+                <h3>
+
+                    Flashcards
+
+                </h3>
+
+                <p>
+
+                    Memorize concepts faster.
+
+                </p>
+
+            </button>
+
+
+
+            <!-- QUIZ -->
+
+            <button
+                class="mode-card"
+                onclick="openQuiz()">
+
+                <div class="mode-icon">
+
+                    ❓
+
+                </div>
+
+                <h3>
+
+                    Quiz
+
+                </h3>
+
+                <p>
+
+                    Test your understanding.
+
+                </p>
+
+            </button>
+
+
+
+            <!-- TEACH ME -->
+
+            
+
+
+            <!-- AI CHAT -->
+
+            <button
+                class="mode-card featured"
+                onclick="focusChat()">
+
+                <div class="mode-icon">
+
+                    💬
+
+                </div>
+
+                <h3>
+
+                    Ask LearnVox
+
+                </h3>
+
+                <p>
+
+                    Chat with your AI tutor.
+
+                </p>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+            LEARNING WORKSPACE
+    ========================================== -->
+
+    <section
+        id="studyOutput"
+        class="workspace">
+
+        <div class="workspace-header">
+
+            <h2>
+
+                Learning Workspace
+
+            </h2>
+
+            <p>
+
+                Everything LearnVox generates will appear here.
+
+            </p>
+
+        </div>
+
+        <div class="workspace-content">
+
+            <div class="workspace-icon">
+
+                🚀
+
+            </div>
+
+            <h3>
+
+                Welcome to LearnVox
+
+            </h3>
+
+            <p>
+
+                Choose a learning mode above to begin.
+
+            </p>
+
+        </div>
+
+    </section>
+
+        <!-- =========================================
+                    AI CHAT
+    ========================================== -->
+
+    <section class="chat-section">
+
+        <div class="chat-header">
+
+            <h2>
+
+                💬 Continue Learning
+
+            </h2>
+
+            <p>
+
+                Ask your AI tutor anything about your document.
+
+            </p>
+
+        </div>
+
+        <div class="chat-box">
+
+            <input
+                id="question"
+                type="text"
+                placeholder="Ask LearnVox a question...">
+
+            <button
+                class="chat-btn"
+                onclick="askTutor()">
+
+                Ask
+
+            </button>
+
+        </div>
+
+        <div
+            id="answerBox"
+            class="answer-box">
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+                    FOOTER
+    ========================================== -->
+
+    <footer class="footer">
+
+        <p>
+
+            Powered by <strong>LearnVox AI</strong>
+
+        </p>
+
+        <p>
+
+            Built with ❤️ by
+            <strong>Intechrity Consulting</strong>
+
+        </p>
+
+    </footer>
 
 </div>
 
-<div class="card">
 
-<div class="emoji">🎧</div>
-
-<h3>Listen</h3>
-
-<p>Turn lessons into audio.</p>
-
-</div>
-
-<div class="card">
-
-<div class="emoji">📝</div>
-
-<h3>Flashcards</h3>
-
-<p>Memorize faster.</p>
-
-</div>
-
-<div class="card">
-
-<div class="emoji">❓</div>
-
-<h3>Quiz</h3>
-
-<p>Test your understanding.</p>
-
-</div>
-
-<div class="card">
-
-<div class="emoji">🎓</div>
-
-<h3>Teach Me</h3>
-
-<p>Interactive AI tutoring.</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-<footer>
-
-Powered by LearnVox AI
-
-<br>
-
-Built by Intechrity Consulting
-
-</footer>
-
-</div>
 
 <script
-src="{{ url_for('static', filename='js/tutor.js') }}">
+    src="{{ url_for('static', filename='js/tutor.js') }}?v=1">
 </script>
 
 </body>
+
 </html>

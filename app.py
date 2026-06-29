@@ -1,11 +1,27 @@
 import os
 import time
+import markdown
 
-from flask import Flask, render_template, request, session
+from flask import (
+    Flask,
+    render_template,
+    request,
+    session,
+    jsonify
+)
 
 from utils.pdf_reader import extract_text
 from utils.database import save_user
 from utils.tutor import ask_tutor
+
+from utils.summarizer import generate_ai_lesson
+from utils.quick_learn import generate_quick_learn
+from utils.takeaway_generator import generate_takeaway
+from utils.lesson_export import create_lesson_doc
+from utils.tts import generate_audio
+from utils.quiz_generator import generate_quiz
+
+
 
 
 app = Flask(__name__)
@@ -127,7 +143,131 @@ def upload():
         filename=file.filename
     )
 
+# =====================================================
+# QUICK LEARN
+# =====================================================
 
+@app.route("/quick-learn", methods=["POST"])
+def quick_learn():
+
+    document = session.get(
+        "CURRENT_DOCUMENT",
+        ""
+    )
+
+    if not document:
+
+        return jsonify({
+
+            "success": False,
+
+            "message": "No document loaded."
+
+        })
+
+    quick = generate_quick_learn(document)
+
+    html = markdown.markdown(quick)
+
+    return jsonify({
+
+        "success": True,
+
+        "quick": html
+
+    })
+
+# =====================================================
+# SUMMARY MODE
+# =====================================================
+
+@app.route("/summary", methods=["POST"])
+def summary():
+
+    document = session.get(
+        "CURRENT_DOCUMENT",
+        ""
+    )
+
+    if not document:
+
+        return jsonify({
+
+            "success": False,
+            "message": "No document loaded."
+
+        })
+
+    lesson = generate_ai_lesson(document)
+
+    takeaway = generate_takeaway(lesson)
+
+    lesson_file = create_lesson_doc(
+    session.get("USER_NAME"),
+    session.get("INSTITUTION"),
+    lesson,
+    takeaway,
+    session.get("FILE_NAME")
+)
+    audio_filename = f"audio/{session.get('FILE_NAME','lesson')}.mp3"
+
+    audio_path = os.path.join(
+        "static",
+        audio_filename
+    )
+
+    generate_audio(
+        lesson,
+        audio_path
+    )
+
+    html_lesson = markdown.markdown(lesson)
+
+    return jsonify({
+
+    "success": True,
+
+    "lesson": html_lesson,
+
+    "takeaway": takeaway,
+
+    "lesson_file": lesson_file,
+
+    "audio_file": "/static/" + audio_filename
+
+})
+
+# =====================================================
+# QUIZ
+# =====================================================
+
+@app.route("/quiz", methods=["POST"])
+def quiz():
+
+    document = session.get(
+        "CURRENT_DOCUMENT",
+        ""
+    )
+
+    if not document:
+
+        return jsonify({
+
+            "success": False,
+
+            "message": "No document loaded."
+
+        })
+
+    quiz = generate_quiz(document)
+
+    return jsonify({
+
+        "success": True,
+
+        "quiz": quiz
+
+    })
 # =====================================================
 # AI TUTOR CHAT
 # =====================================================

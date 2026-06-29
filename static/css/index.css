@@ -1046,3 +1046,42 @@ transform:translateY(-10px);
 }
 
 }
+
+
+/* =====================================
+   FEATURE HIGHLIGHT
+===================================== */
+
+.feature-highlight{
+
+    border:2px solid #6C4DF6;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.feature-highlight::before{
+
+    content:"POPULAR";
+
+    position:absolute;
+
+    top:15px;
+
+    right:-35px;
+
+    background:#6C4DF6;
+
+    color:white;
+
+    padding:5px 40px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    transform:rotate(45deg);
+
+}
