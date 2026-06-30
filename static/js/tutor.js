@@ -1,33 +1,139 @@
-async function askTutor(){
+async function askTutor() {
 
-    const question=document.getElementById("question").value;
+    const question = document
+        .getElementById("question")
+        .value
+        .trim();
 
-    if(question.trim()===""){
-        return;
+    if (!question) return;
+
+    const answerBox = document.getElementById("answerBox");
+
+    answerBox.innerHTML = `
+
+        <div class="thinking-card">
+
+            <div class="thinking-spinner"></div>
+
+            <h3>🧠 LearnVox is thinking...</h3>
+
+            <p>
+
+                Preparing the best explanation for you.
+
+            </p>
+
+        </div>
+
+    `;
+
+    try {
+
+        const response = await fetch("/ask", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                question: question
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        answerBox.innerHTML = `
+
+<div class="chat-message student">
+
+    <div class="chat-avatar">
+
+        👤
+
+    </div>
+
+    <div class="chat-bubble student-bubble">
+
+        ${question}
+
+    </div>
+
+</div>
+
+<div class="chat-message tutor">
+
+    <div class="chat-avatar">
+
+        🧠
+
+    </div>
+
+    <div class="chat-bubble tutor-bubble">
+
+        ${data.answer}
+
+    </div>
+
+</div>
+
+<div class="follow-up-box">
+
+    💡 Try asking:
+
+    <br><br>
+
+    • Explain this more simply
+
+    <br>
+
+    • Give another example
+
+    <br>
+
+    • Test my understanding
+
+    <br>
+
+    • Compare the concepts
+
+</div>
+
+`;
+
+        document.getElementById("question").value = "";
+
     }
 
-    const response=await fetch("/ask",{
+    catch(error){
 
-        method:"POST",
+        answerBox.innerHTML = `
 
-        headers:{
-            "Content-Type":"application/x-www-form-urlencoded"
-        },
+<div class="study-card">
 
-        body:"question="+encodeURIComponent(question)
+<h2>
 
-    });
+❌ Error
 
-const answer = await response.text();
+</h2>
 
-const answerBox = document.getElementById("answerBox");
+<p>
 
-answerBox.style.display = "block";
+Unable to contact your AI Tutor.
 
-answerBox.innerHTML = answer;
+</p>
 
-// Clear the input after sending
-document.getElementById("question").value = "";
+</div>
+
+`;
+
+    }
 
 }
 

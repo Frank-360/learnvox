@@ -295,36 +295,48 @@ def flashcards():
 @app.route("/ask", methods=["POST"])
 def ask():
 
-    question = request.form["question"]
+    try:
 
-    document_text = session.get(
-        "CURRENT_DOCUMENT",
-        ""
-    )
+        data = request.get_json()
 
-    chat_history = session.get(
-        "CHAT_HISTORY",
-        []
-    )
+        question = data.get("question", "")
 
-    answer = ask_tutor(
-        document_text,
-        question,
-        chat_history
-    )
+        document_text = session.get(
+            "CURRENT_DOCUMENT",
+            ""
+        )
 
-    chat_history.append(
-        {
-            "question": question,
+        chat_history = session.get(
+            "CHAT_HISTORY",
+            []
+        )
+
+        answer = ask_tutor(
+            document_text,
+            question,
+            chat_history
+        )
+
+        chat_history.append(
+            {
+                "question": question,
+                "answer": answer
+            }
+        )
+
+        session["CHAT_HISTORY"] = chat_history
+
+        return jsonify({
             "answer": answer
-        }
-    )
+        })
 
-    session["CHAT_HISTORY"] = chat_history
+    except Exception as e:
 
-    return answer
+        print("ASK ROUTE ERROR:", e)
 
-
+        return jsonify({
+            "answer": str(e)
+        }), 500
 # =====================================================
 # RUN APP
 # =====================================================

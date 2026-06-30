@@ -2193,3 +2193,127 @@ img{
     transform:scale(1.04);
 
 }
+
+/*====================================
+        CHAT EXPERIENCE
+====================================*/
+
+.chat-message{
+
+    display:flex;
+
+    gap:18px;
+
+    margin:25px 0;
+
+    align-items:flex-start;
+
+}
+
+.chat-avatar{
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    background:#6C63FF;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:22px;
+
+    flex-shrink:0;
+
+}
+
+.student .chat-avatar{
+
+    background:#10B981;
+
+}
+
+.chat-bubble{
+
+    padding:22px;
+
+    border-radius:20px;
+
+    line-height:1.8;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+
+    max-width:85%;
+
+}
+
+.student-bubble{
+
+    background:#EEF2FF;
+
+}
+
+.tutor-bubble{
+
+    background:white;
+
+    border:2px solid #ECEBFF;
+
+}
+
+.follow-up-box{
+
+    margin-top:30px;
+
+    background:#F8F9FC;
+
+    padding:25px;
+
+    border-left:5px solid #6C63FF;
+
+    border-radius:18px;
+
+}
+
+.thinking-card{
+
+    text-align:center;
+
+    padding:50px;
+
+}
+
+.thinking-spinner{
+
+    width:45px;
+
+    height:45px;
+
+    border:5px solid #E5E7EB;
+
+    border-top:5px solid #6C63FF;
+
+    border-radius:50%;
+
+    margin:auto;
+
+    animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
