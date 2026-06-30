@@ -854,58 +854,291 @@ function finishQuiz() {
 // FLASHCARDS
 // ======================================
 
+let flashcards = [];
+
+let currentFlashcard = 0;
+
+let showingAnswer = false;
+
+
 async function openFlashcards() {
 
     const output = document.getElementById("studyOutput");
 
     output.innerHTML = `
+
         <div class="loading-box">
+
             <h2>📝 Building Flashcards...</h2>
-            <p>LearnVox is generating your flashcards...</p>
+
+            <p>
+
+                LearnVox is creating your study cards...
+
+            </p>
+
         </div>
+
     `;
 
-    try {
+try {
 
-        const response = await fetch("/flashcards");
+    const response = await fetch("/flashcards");
 
-        const cards = await response.json();
+    const data = await response.json();
 
-        let html = "<h2>📝 Flashcards</h2>";
+    if (!data.success) {
 
-        cards.forEach((card, index) => {
+        throw new Error("Unable to generate flashcards.");
 
-            html += `
-                <div class="flashcard">
-                    <h3>Card ${index + 1}</h3>
+    }
 
-                    <p><strong>Question:</strong></p>
-                    <p>${card.question}</p>
+    flashcards = data.flashcards;
 
-                    <details>
-                        <summary>Show Answer</summary>
-                        <p>${card.answer}</p>
-                    </details>
-                </div>
-            `;
+    currentFlashcard = 0;
 
-        });
+    showingAnswer = false;
 
-        output.innerHTML = html;
+    showFlashcard();
 
-    } catch (error) {
+} catch (error) {
 
-        output.innerHTML = `
+    console.error(error);
+
+    output.innerHTML = `
+
+        <div class="study-card">
+
             <h2>❌ Error</h2>
-            <p>Unable to generate flashcards.</p>
-        `;
 
-        console.error(error);
+            <p>${error.message}</p>
+
+        </div>
+
+    `;
+
+}
+}
+
+function showFlashcard(){
+
+    const card = flashcards[currentFlashcard];
+
+    const output = document.getElementById("studyOutput");
+
+    output.innerHTML = `
+
+<div class="lesson-page">
+
+    <div class="tutor-banner">
+
+        <span class="workspace-badge">
+
+            Flashcards
+
+        </span>
+
+        <h1>
+
+            🃏 Flashcard ${currentFlashcard+1}
+
+        </h1>
+
+        <p>
+
+            Card ${currentFlashcard+1} of ${flashcards.length}
+
+        </p>
+
+    </div>
+
+
+    <div class="study-card">
+
+        <h2>
+
+            ${showingAnswer ? "Answer" : "Question"}
+
+        </h2>
+
+        <div class="flashcard-content">
+
+            ${showingAnswer ? card.answer : card.question}
+
+        </div>
+
+        <div class="lesson-actions">
+
+            <button
+
+                class="secondary-btn"
+
+                onclick="flipFlashcard()">
+
+                🔄 ${showingAnswer ? "Show Question" : "Flip Card"}
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="lesson-actions">
+
+        <button
+
+            class="secondary-btn"
+
+            onclick="previousFlashcard()"
+
+            ${currentFlashcard===0 ? "disabled":""}>
+
+            ◀ Previous
+
+        </button>
+
+        <button
+
+            class="primary-btn"
+
+            onclick="nextFlashcard()">
+
+            ${currentFlashcard===flashcards.length-1 ? "🎉 Finish" : "Next ▶"}
+
+        </button>
+
+    </div>
+
+</div>
+
+`;
+
+}
+
+
+function flipFlashcard(){
+
+    const card = document.querySelector(".flashcard-content");
+
+    card.classList.add("flashcard-flip");
+
+    setTimeout(()=>{
+
+        showingAnswer=!showingAnswer;
+
+        showFlashcard();
+
+    },250);
+
+}
+
+
+function nextFlashcard(){
+
+    if(currentFlashcard < flashcards.length-1){
+
+        currentFlashcard++;
+
+        showingAnswer=false;
+
+        showFlashcard();
+
+    }
+
+    else{
+
+        finishFlashcards();
 
     }
 
 }
 
+
+function previousFlashcard(){
+
+    if(currentFlashcard>0){
+
+        currentFlashcard--;
+
+        showingAnswer=false;
+
+        showFlashcard();
+
+    }
+
+}
+
+
+function finishFlashcards(){
+
+    const output=document.getElementById("studyOutput");
+
+    output.innerHTML=`
+
+<div class="lesson-page">
+
+    <div class="tutor-banner">
+
+        <h1>
+
+            🎉 Excellent!
+
+        </h1>
+
+        <p>
+
+            You've completed all the flashcards.
+
+        </p>
+
+    </div>
+
+    <div class="study-card">
+
+        <h2>
+
+            Great Revision!
+
+        </h2>
+
+        <p>
+
+            You've reviewed every important concept from today's lesson.
+
+        </p>
+
+        <div class="lesson-actions">
+
+            <button
+
+                class="primary-btn"
+
+                onclick="openQuiz()">
+
+                ❓ Quiz Again
+
+            </button>
+
+            <button
+
+                class="secondary-btn"
+
+                onclick="openDeepDive()">
+
+                📖 Review Lesson
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+`;
+
+}
 
 // ======================================
 // FOCUS CHAT
