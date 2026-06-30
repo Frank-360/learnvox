@@ -20,6 +20,7 @@ from utils.takeaway_generator import generate_takeaway
 from utils.lesson_export import create_lesson_doc
 from utils.tts import generate_audio
 from utils.quiz_generator import generate_quiz
+from utils.flashcard_generator import generate_flashcards
 
 
 
@@ -268,6 +269,25 @@ def quiz():
         "quiz": quiz
 
     })
+
+
+@app.route("/flashcards")
+def flashcards():
+
+    text = session.get("CURRENT_DOCUMENT")
+
+    if not text:
+        return "No document uploaded."
+
+    cards = generate_flashcards(text)
+
+    return jsonify({
+    "success": True,
+    "flashcards": cards
+})
+
+
+
 # =====================================================
 # AI TUTOR CHAT
 # =====================================================

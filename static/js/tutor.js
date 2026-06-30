@@ -96,13 +96,34 @@ async function openQuickLearn() {
 
             <hr>
 
-            <button
-                class="chat-btn"
+            <div class="quick-complete">
+
+                <h3>
+
+                    🎉 Great Job!
+
+                </h3>
+
+                <p>
+
+                    You've understood the fundamentals of this topic.
+
+                    You're now ready for a complete AI tutoring session where
+                    we'll explore the topic in much greater depth.
+
+                </p>
+
+        <button
+
+                class="primary-btn tutor-btn"
+
                 onclick="openDeepDive()">
 
-                📚 Tutor Me
+                🧠 Tutor Me
 
             </button>
+
+        </div>
 
         </div>
 
@@ -118,7 +139,6 @@ async function openQuickLearn() {
     }
 
 }
-
 
 // ======================================
 // AI TUTOR
@@ -164,107 +184,196 @@ output.innerHTML = `
             return;
         }
 
+
+    const studentName = document.getElementById("studentName").value;
+
+    const documentName = document.getElementById("documentName").value;
+
         
-    output.innerHTML = `
+  output.innerHTML = `
 
 <div class="lesson-page">
 
+    <div class="tutor-banner">
+
+        <span class="workspace-badge">
+
+            AI Personal Tutor
+
+        </span>
+
     <h1>
 
-    🧠 Learn With Your AI Tutor
+    👋 Hi ${studentName},
 
-    </h1>
+</h1>
 
-    <p>
-        I'll guide you through this topic, explain the tricky parts, and help you truly understand it.
+<p>
 
-    </p>
+    Today we'll explore:
 
-    <hr>
+    <strong>${documentName}</strong>
 
-    <div class="summary-content">
+</p>
 
-        ${data.lesson}
+<p>
 
-    </div>
+    I'll guide you through each concept step by step, explain the difficult
+    parts clearly, and help you build confidence before we move on to quizzes
+    and flashcards.
 
-   <hr>
-
-<div class="audio-section">
-
-    <h3>🎧 Listen to Your AI Tutor</h3>
-
-    <audio controls preload="metadata" style="width:100%; margin-top:15px;">
-
-        <source
-            src="${data.audio_file}"
-            type="audio/mpeg">
-
-        Your browser does not support audio playback.
-
-    </audio>
-
-</div>
-
-<hr>
-
-<div class="tutor-next">
-
-    <h3>🚀 Continue Learning</h3>
-
-    <p>Choose what you'd like to do next.</p>
-
-    <div class="tutor-actions">
-
-        <button
-            class="chat-btn"
-            onclick="openQuiz()">
-
-            ❓ Quiz Me
-
-        </button>
-
-        <button
-            class="chat-btn"
-            onclick="openFlashcards()">
-
-            📝 Flashcards
-
-        </button>
+</p>
 
     </div>
 
-</div>
 
-<hr>
+    <!-- =========================
+            TEACH ME
+    ========================== -->
 
-<div class="save-section">
+    <div class="study-card">
 
-    <h3>📥 Save for Later</h3>
+        <div class="card-title">
 
-    <div class="tutor-actions">
+            <span>📖</span>
 
-        <a
-            class="download-btn"
-            href="${data.lesson_file}"
-            target="_blank">
+            <h2>Teach Me</h2>
 
-            📄 Download Tutor Notes
+        </div>
 
-        </a>
+        <div class="summary-content">
 
-        <a
-            class="download-btn"
-            href="${data.audio_file}"
-            download>
+            ${data.lesson}
 
-            🎧 Download Audio
-
-        </a>
+        </div>
 
     </div>
 
-</div>
+
+
+    <!-- =========================
+            LISTEN
+    ========================== -->
+
+    <div class="study-card">
+
+        <div class="card-title">
+
+            <span>🎧</span>
+
+            <h2>Listen</h2>
+
+        </div>
+
+        <p>
+
+            Prefer listening? Your AI Tutor has prepared an audio lesson.
+
+        </p>
+
+        <audio
+            controls
+            preload="metadata"
+            style="width:100%;margin-top:20px;">
+
+            <source
+                src="${data.audio_file}"
+                type="audio/mpeg">
+
+        </audio>
+
+    </div>
+
+
+
+    <!-- =========================
+            CONTINUE
+    ========================== -->
+
+    <div class="study-card">
+
+        <div class="card-title">
+
+            <span>🚀</span>
+
+            <h2>Continue Learning</h2>
+
+        </div>
+
+        <p>
+
+            Great progress! Strengthen your understanding with a quiz
+            or revise using flashcards.
+
+        </p>
+
+        <div class="lesson-actions">
+
+            <button
+                class="primary-btn"
+                onclick="openQuiz()">
+
+                ❓ Quiz Me
+
+            </button>
+
+            <button
+                class="secondary-btn"
+                onclick="openFlashcards()">
+
+                📝 Flashcards
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+            SAVE
+    ========================== -->
+
+    <div class="study-card">
+
+        <div class="card-title">
+
+            <span>💾</span>
+
+            <h2>Save For Later</h2>
+
+        </div>
+
+        <p>
+
+            Continue learning offline whenever it suits you.
+
+        </p>
+
+        <div class="lesson-actions">
+
+            <a
+                class="primary-btn"
+                href="${data.lesson_file}"
+                target="_blank">
+
+                📄 Download Notes
+
+            </a>
+
+            <a
+                class="secondary-btn"
+                href="${data.audio_file}"
+                download>
+
+                🎧 Download Audio
+
+            </a>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -376,18 +485,65 @@ function showQuestion() {
 
     const output = document.getElementById("studyOutput");
 
+    const progress =
+        ((currentQuestion + 1) / quizQuestions.length) * 100;
+
     output.innerHTML = `
 
 <div class="lesson-page">
 
-    <h1>🧠 Quiz Me</h1>
+    <div class="tutor-banner">
 
+        <span class="workspace-badge">
 
-       <p class="quiz-progress">
+            AI Quiz Session
 
-        Question ${currentQuestion + 1} of ${quizQuestions.length}
+        </span>
+
+        <h1>
+
+            🧠 Quiz Me
+
+        </h1>
+
+        <p>
+
+            Let's see how well you've understood today's lesson.
+
+            Take your time and choose the best answer.
 
         </p>
+
+    </div>
+
+
+    <div class="study-card">
+
+        <div class="quiz-header">
+
+            <span>
+
+                Question ${currentQuestion + 1}
+
+            </span>
+
+            <span>
+
+                ${quizQuestions.length} Questions
+
+            </span>
+
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                style="width:${progress}%">
+
+            </div>
+
+        </div>
 
         <h2 class="quiz-question">
 
@@ -395,19 +551,21 @@ function showQuestion() {
 
         </h2>
 
-    <div class="quiz-options">
+        <div class="quiz-options">
 
-        ${q.options.map((option, index) => `
+            ${q.options.map((option,index)=>`
 
-            <button
-                class="quiz-option"
-                onclick="submitAnswer(${index})">
+                <button
+                    class="quiz-option"
+                    onclick="submitAnswer(${index})">
 
-                ${option}
+                    ${option}
 
-            </button>
+                </button>
 
-        `).join("")}
+            `).join("")}
+
+        </div>
 
     </div>
 
@@ -418,14 +576,13 @@ function showQuestion() {
 }
 
 
-
-function submitAnswer(choice) {
+function submitAnswer(selectedIndex) {
 
     const q = quizQuestions[currentQuestion];
 
     const output = document.getElementById("studyOutput");
 
-    const correct = choice === q.answer;
+    const correct = selectedIndex === q.answer;
 
     if (correct) {
 
@@ -433,54 +590,95 @@ function submitAnswer(choice) {
 
     }
 
-    const isLastQuestion = currentQuestion === quizQuestions.length - 1;
-
     output.innerHTML = `
 
 <div class="lesson-page">
 
-    <h1>
+    <div class="study-card">
 
-        ${correct ? "🎉 Excellent!" : "❌ Not Quite"}
+        <h1>
 
-    </h1>
+            ${correct ? "✅ Correct!" : "❌ Not Quite"}
 
-    <p style="font-size:20px; line-height:1.8;">
+        </h1>
 
-        ${q.explanation}
+        <h2>
 
-    </p>
+            ${q.question}
 
-    ${!correct ? `
+        </h2>
 
-    <p style="margin-top:20px;font-weight:bold;color:#16a34a;">
+        <div class="answer-feedback ${correct ? "correct-card" : "wrong-card"}">
 
-        ✅ Correct Answer:
-        ${q.options[q.answer]}
+            <strong>
 
-    </p>
+                ${
+                    correct
+                    ? "Excellent!"
+                    : "The correct answer is:"
+                }
 
-    ` : ""}
+            </strong>
 
-    <div class="quiz-score">
+            <p>
 
-        ⭐ Score
+                ${q.options[q.answer]}
 
-        <strong>
+            </p>
 
-            ${score} / ${quizQuestions.length}
+        </div>
 
-        </strong>
+        <div class="explanation-box">
+
+            <h3>
+
+                💡 Why?
+
+            </h3>
+
+            <p>
+
+                ${q.explanation}
+
+            </p>
+
+        </div>
+
+        <div class="quiz-footer">
+
+            <span>
+
+                Score:
+
+                <strong>
+
+                    ${score}
+
+                </strong>
+
+                /
+
+                ${quizQuestions.length}
+
+            </span>
+
+            <button
+
+                class="primary-btn"
+
+                onclick="nextQuestion()">
+
+                ${
+                    currentQuestion + 1 === quizQuestions.length
+                    ? "🏆 Finish Quiz"
+                    : "➡ Next Question"
+                }
+
+            </button>
+
+        </div>
 
     </div>
-
-    <button
-        class="chat-btn"
-        onclick="${isLastQuestion ? 'finishQuiz()' : 'nextQuestion()'}">
-
-        ${isLastQuestion ? '🎉 Finish Quiz' : 'Next →'}
-
-    </button>
 
 </div>
 
@@ -492,15 +690,17 @@ function nextQuestion() {
 
     currentQuestion++;
 
-    if (currentQuestion >= quizQuestions.length) {
+    if (currentQuestion < quizQuestions.length) {
 
-        finishQuiz();
-
-        return;
+        showQuestion();
 
     }
 
-    showQuestion();
+    else {
+
+        finishQuiz();
+
+    }
 
 }
 
@@ -512,22 +712,38 @@ function finishQuiz() {
     const percentage = (score / quizQuestions.length) * 100;
 
     let feedback = "";
+    let emoji = "";
+    let title = "";
 
     if (percentage >= 90) {
 
-        feedback = "🌟 Outstanding! You have an excellent understanding of this topic.";
+        emoji = "🏆";
+        title = "Outstanding!";
+        feedback = "Excellent work! You've mastered this topic. Keep up the fantastic learning.";
 
-    } else if (percentage >= 75) {
+    }
 
-        feedback = "👏 Great job! You're very close to mastering this topic.";
+    else if (percentage >= 75) {
 
-    } else if (percentage >= 50) {
+        emoji = "🌟";
+        title = "Great Job!";
+        feedback = "You're very close to mastering this topic. A quick review will make you even stronger.";
 
-        feedback = "📘 Good effort! Review the AI Tutor lesson and try the quiz again to strengthen your understanding.";
+    }
 
-    } else {
+    else if (percentage >= 50) {
 
-        feedback = "💪 Don't give up! Learning takes practice. Go through the AI Tutor lesson once more and then retake the quiz.";
+        emoji = "📘";
+        title = "Good Effort!";
+        feedback = "You've understood many of the ideas. Review the lesson once more and you'll improve quickly.";
+
+    }
+
+    else {
+
+        emoji = "💪";
+        title = "Keep Going!";
+        feedback = "Learning takes practice. Revisit the AI Tutor lesson and try the quiz again. You've got this!";
 
     }
 
@@ -535,41 +751,95 @@ function finishQuiz() {
 
 <div class="lesson-page">
 
-    <h1>
+    <div class="tutor-banner">
 
-        🎉 Quiz Complete!
+        <span class="workspace-badge">
 
-    </h1>
+            Quiz Complete
 
-    <h2>
+        </span>
 
-        You scored ${score} / ${quizQuestions.length}
+        <h1>
 
-    </h2>
+            ${emoji} ${title}
 
-    <p>
+        </h1>
 
-        ${feedback}
+        <p>
 
-    </p>
+            You've completed today's quiz.
 
-    <div class="tutor-actions">
+        </p>
 
-        <button
-            class="chat-btn"
-            onclick="openDeepDive()">
+    </div>
 
-            👨‍🏫 Return to AI Tutor
+    <div class="study-card">
 
-        </button>
+        <div class="quiz-score-card">
 
-        <button
-            class="chat-btn"
-            onclick="openQuiz()">
+            <h2>
 
-            🔄 Try Again
+                Your Score
 
-        </button>
+            </h2>
+
+            <div class="score-circle">
+
+                ${score}/${quizQuestions.length}
+
+            </div>
+
+            <p>
+
+                ${feedback}
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="study-card">
+
+        <h2>
+
+            🚀 What's Next?
+
+        </h2>
+
+        <p>
+
+            Continue strengthening your understanding using any of the learning tools below.
+
+        </p>
+
+        <div class="lesson-actions">
+
+            <button
+                class="primary-btn"
+                onclick="openDeepDive()">
+
+                📖 Review Lesson
+
+            </button>
+
+            <button
+                class="secondary-btn"
+                onclick="openFlashcards()">
+
+                📝 Flashcards
+
+            </button>
+
+            <button
+                class="secondary-btn"
+                onclick="openQuiz()">
+
+                🔄 Try Again
+
+            </button>
+
+        </div>
 
     </div>
 
@@ -584,21 +854,58 @@ function finishQuiz() {
 // FLASHCARDS
 // ======================================
 
-function openFlashcards() {
+async function openFlashcards() {
 
-    document.getElementById("studyOutput").innerHTML =
-    "<h2>📝 Flashcards</h2><p>Coming soon...</p>";
+    const output = document.getElementById("studyOutput");
+
+    output.innerHTML = `
+        <div class="loading-box">
+            <h2>📝 Building Flashcards...</h2>
+            <p>LearnVox is generating your flashcards...</p>
+        </div>
+    `;
+
+    try {
+
+        const response = await fetch("/flashcards");
+
+        const cards = await response.json();
+
+        let html = "<h2>📝 Flashcards</h2>";
+
+        cards.forEach((card, index) => {
+
+            html += `
+                <div class="flashcard">
+                    <h3>Card ${index + 1}</h3>
+
+                    <p><strong>Question:</strong></p>
+                    <p>${card.question}</p>
+
+                    <details>
+                        <summary>Show Answer</summary>
+                        <p>${card.answer}</p>
+                    </details>
+                </div>
+            `;
+
+        });
+
+        output.innerHTML = html;
+
+    } catch (error) {
+
+        output.innerHTML = `
+            <h2>❌ Error</h2>
+            <p>Unable to generate flashcards.</p>
+        `;
+
+        console.error(error);
+
+    }
 
 }
 
-
-
-function openTeach() {
-
-    document.getElementById("studyOutput").innerHTML =
-    "<h2>🎓 Teach Me</h2><p>Coming soon...</p>";
-
-}
 
 // ======================================
 // FOCUS CHAT
