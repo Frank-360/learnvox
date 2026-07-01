@@ -17,7 +17,10 @@ from utils.tutor import ask_tutor
 from utils.summarizer import generate_ai_lesson
 from utils.quick_learn import generate_quick_learn
 from utils.takeaway_generator import generate_takeaway
-from utils.lesson_export import create_lesson_doc
+from utils.lesson_export import (
+    create_lesson_doc,
+    clean_filename
+)
 from utils.tts import generate_audio
 from utils.quiz_generator import generate_quiz
 from utils.flashcard_generator import generate_flashcards
@@ -210,7 +213,14 @@ def summary():
     takeaway,
     session.get("FILE_NAME")
 )
-    audio_filename = f"audio/{session.get('FILE_NAME','lesson')}.mp3"
+    
+    base_name = clean_filename(
+    os.path.splitext(
+        session.get("FILE_NAME", "lesson")
+    )[0]
+)
+
+    audio_filename = f"audio/{base_name}.mp3"
 
     audio_path = os.path.join(
         "static",

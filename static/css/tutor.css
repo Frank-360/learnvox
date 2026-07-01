@@ -391,13 +391,24 @@ img{
 
     display:grid;
 
-    grid-template-columns:0.9fr 1.1fr;
+    grid-template-columns:repeat(3,1fr);
 
-    gap:35px;
+    gap:24px;
 
     align-items:stretch;
 
 }
+
+@media(max-width:1100px){
+
+.learning-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+}
+
 
 
 /*=========================================
@@ -416,7 +427,7 @@ img{
 
     border-radius:26px;
 
-    padding:40px;
+    padding:32px;
 
     box-shadow:var(--shadow);
 
@@ -426,7 +437,13 @@ img{
 
     transition:.35s;
 
+    height:100%;
+
+    min-height:650px;
+
 }
+
+
 .learning-card:hover{
 
     transform:translateY(-8px);

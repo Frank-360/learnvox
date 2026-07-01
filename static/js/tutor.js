@@ -277,6 +277,7 @@ output.innerHTML = `
         });
 
         const data = await response.json();
+        console.log("Audio URL:", data.audio_file);
 
         console.log(data);
 
@@ -464,7 +465,7 @@ output.innerHTML = `
                 href="${data.lesson_file}"
                 target="_blank">
 
-                📄 Download Notes
+                📄 Save Study Notes
 
             </a>
 
@@ -473,7 +474,7 @@ output.innerHTML = `
                 href="${data.audio_file}"
                 download>
 
-                🎧 Download Audio
+                🎧 Save Audio Lesson
 
             </a>
 

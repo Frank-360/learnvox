@@ -56,11 +56,11 @@ def create_lesson_doc(
     document.add_page_break()
 
     # -------------------------
-    # AI LESSON
+    # AI TUTOR
     # -------------------------
 
     lesson_heading = document.add_heading(
-        "AI LESSON",
+        "AI TUTOR",
         level=1
     )
 
@@ -99,11 +99,15 @@ def create_lesson_doc(
         exist_ok=True
     )
 
+    base_filename = clean_filename(
+    os.path.splitext(original_filename)[0]
+)
+
     filename = (
-        f"{clean_filename(full_name)}_"
-        f"{clean_filename(original_filename)}_"
-        f"AI_Study_Notes.docx"
-    )
+    f"{clean_filename(full_name)}_"
+    f"{base_filename}_"
+    f"AI_Study_Notes.docx"
+)
 
     output_path = os.path.join(
         "static/downloads",
@@ -112,4 +116,5 @@ def create_lesson_doc(
 
     document.save(output_path)
 
-    return output_path
+    return "/static/downloads/" + filename
+
