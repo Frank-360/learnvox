@@ -143,6 +143,10 @@ Unable to contact your AI Tutor.
 
 async function openQuickLearn() {
 
+    const workspace = document.getElementById("studyWorkspace");
+
+    workspace.style.display = "block";
+
     const output = document.getElementById("studyOutput");
 
     output.innerHTML = `
@@ -252,8 +256,11 @@ async function openQuickLearn() {
 
 async function openDeepDive() {
 
-    console.log("AI Tutor clicked");
+    const workspace = document.getElementById("studyWorkspace");
 
+    workspace.style.display = "block";
+
+    console.log("AI Tutor clicked");
 
     const output = document.getElementById("studyOutput");
 
@@ -499,6 +506,90 @@ output.innerHTML = `
         `;
 
     }
+
+}
+
+
+function openAskMe() {
+
+    const workspace = document.getElementById("studyWorkspace");
+
+    workspace.style.display = "block";
+
+    const output = document.getElementById("studyOutput");
+
+    output.innerHTML = `
+
+<div class="chat-section">
+
+    <div class="chat-header">
+
+        <span class="workspace-badge">
+
+            Unlimited Tutoring
+
+        </span>
+
+        <h2>
+
+            Ask Me Anything
+
+        </h2>
+
+        <p>
+
+            I'm here to explain, simplify and answer every question until you understand the topic.
+
+        </p>
+
+    </div>
+
+    <div class="example-prompts">
+
+        <span>Try asking:</span>
+
+        <div class="prompt-tags">
+
+            <span>Explain this simply</span>
+
+            <span>Give another example</span>
+
+            <span>Quiz me</span>
+
+            <span>What should I remember?</span>
+
+        </div>
+
+    </div>
+
+    <div class="chat-box">
+
+        <input
+            id="question"
+            type="text"
+            placeholder="Ask your AI Tutor anything...">
+
+        <button
+            class="primary-btn"
+            onclick="askTutor()">
+
+            Ask Me
+
+        </button>
+
+    </div>
+
+    <div
+        id="answerBox"
+        class="answer-box">
+
+    </div>
+
+</div>
+
+`;
+
+    document.getElementById("question").focus();
 
 }
 

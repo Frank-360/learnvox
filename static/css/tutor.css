@@ -2334,3 +2334,67 @@ img{
     }
 
 }
+
+/* ==========================================
+   LEARNING WORKSPACE
+========================================== */
+
+.study-workspace{
+
+    display:none;
+
+    max-width:1200px;
+
+    margin:50px auto;
+
+}
+
+#studyOutput{
+
+    background:#fff;
+
+    border-radius:24px;
+
+    min-height:500px;
+
+    padding:40px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+    transition:.35s;
+
+}
+
+.workspace-placeholder{
+
+    text-align:center;
+
+    padding:80px 30px;
+
+}
+
+.workspace-icon{
+
+    font-size:70px;
+
+    margin-bottom:20px;
+
+}
+
+.workspace-placeholder h2{
+
+    font-size:34px;
+
+    margin-bottom:15px;
+
+}
+
+.workspace-placeholder p{
+
+    font-size:18px;
+
+    color:#666;
+
+    line-height:2;
+
+}
