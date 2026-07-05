@@ -1,6 +1,8 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import traceback
+
 
 load_dotenv()
 
@@ -84,24 +86,36 @@ The student's document will be provided next.
 
 def generate_quick_learn(text):
 
-    response = client.chat.completions.create(
+    print("OPENAI REQUEST STARTING")
 
-        model="gpt-4.1-mini",
+    try:
 
-        messages=[
+        response = client.chat.completions.create(
 
-            {
-                "role": "system",
-                "content": system_prompt
-            },
+            model="gpt-4.1-mini",
 
-            {
-                "role": "user",
-                "content": text[:10000]
-            }
+            messages=[
 
-        ]
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
 
-    )
+                {
+                    "role": "user",
+                    "content": text[:10000]
+                }
 
-    return response.choices[0].message.content
+            ]
+
+        )
+
+        print("OPENAI RESPONSE RECEIVED")
+
+        return response.choices[0].message.content
+
+    except Exception:
+
+        traceback.print_exc()
+
+        raise

@@ -89,6 +89,7 @@ img{
 
     padding:45px 0 80px;
 
+     gap:50px;
 }
 
 
@@ -174,7 +175,7 @@ img{
 
     grid-template-columns:2fr 1fr;
 
-    gap:50px;
+    gap:40px;
 
     align-items:center;
 
@@ -715,6 +716,8 @@ img{
     padding:50px;
 
     margin-bottom:50px;
+    
+    min-height:auto;
 
 }
 
@@ -2396,5 +2399,366 @@ img{
     color:#666;
 
     line-height:2;
+
+}
+
+/* =========================================
+        FOUNDING MEMBER BANNER
+========================================= */
+
+
+.founding-member-banner{
+
+    background:linear-gradient(135deg,#2563eb,#4338ca);
+
+    border-radius:28px;
+
+    padding:50px;
+
+    color:white;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.18);
+
+}
+
+.launch-badge{
+
+    display:inline-block;
+
+    background:rgba(255,255,255,.18);
+
+    padding:10px 18px;
+
+    border-radius:30px;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    margin-bottom:25px;
+
+}
+
+.hero-title{
+
+    font-size:56px;
+
+    line-height:1.1;
+
+    margin-bottom:35px;
+
+}
+
+.launch-price-card{
+
+    background:rgba(255,255,255,.12);
+
+    border:1px solid rgba(255,255,255,.18);
+
+    border-radius:20px;
+
+    padding:25px;
+
+    margin-bottom:35px;
+
+}
+
+.launch-price-card small{
+
+    opacity:.85;
+
+}
+
+.launch-price-card h2{
+
+    font-size:72px;
+
+    margin:8px 0;
+
+    color: #F9FAFC;
+
+}
+
+.launch-price-card span{
+
+    display:block;
+
+    font-size:24px;
+
+    margin-top:-8px;
+
+}
+
+.launch-price-card p{
+
+    margin:0;
+
+    color:white;
+
+}
+
+.benefits-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:16px;
+
+    margin:40px 0;
+
+    font-size:17px;
+
+    font-weight:600;
+
+}
+
+.benefits-grid div{
+
+    background:rgba(255,255,255,.08);
+
+    padding:22px;
+
+    border-radius:14px;
+
+}
+
+.trust-grid{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:15px;
+
+    margin-bottom:35px;
+
+}
+
+.trust-grid div{
+
+    background:rgba(255,255,255,.12);
+
+    padding:12px 18px;
+
+    border-radius:25px;
+
+}
+
+
+
+.founding-member-banner h3{
+
+    font-size:42px;
+
+    line-height:1.2;
+
+    margin-bottom:20px;
+
+}
+
+.founding-member-banner p{
+
+    margin:0;
+
+    color:rgba(255,255,255,.92);
+
+    line-height:1.7;
+
+    font-size:17px;
+
+}
+
+.founding-btn{
+
+    background:linear-gradient(90deg,#ffffff,#f3f4f6);
+
+    width:100%;
+
+    padding:22px;
+
+    border:none;
+
+    border-radius:60px;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    background:white;
+
+    color:#2563eb;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    box-shadow:0 18px 40px rgba(0,0,0,.18);
+
+}
+
+.founding-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 25px 50px rgba(0,0,0,.25);
+
+}
+
+
+@media(max-width:900px){
+
+    .founding-member-banner{
+
+        flex-direction:column;
+
+        text-align:center;
+
+    }
+}
+.dashboard-card{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:22px;
+
+    margin-bottom:20px;
+
+    box-shadow:0 12px 30px rgba(15,23,42,.08);
+
+    border:1px solid #edf2f7;
+
+    transition:.3s;
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 25px 45px rgba(37,99,235,.15);
+
+}
+
+.founding-subtitle{
+
+    font-size:20px;
+
+    font-weight:600;
+
+    color:white;
+
+    margin:18px 0;
+
+    line-height:1.7;
+
+}
+
+
+.success-message{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#1e3a8a;
+
+    margin-bottom:12px;
+
+}
+
+.continue-message{
+
+    font-size:18px;
+
+    color:#16a34a;
+
+    font-weight:600;
+
+    margin:18px 0;
+
+}
+
+.today-topic{
+
+    margin:28px 0;
+
+    padding:18px 22px;
+
+    background:#f8fbff;
+
+    border-left:5px solid #3b82f6;
+
+    border-radius:14px;
+
+    box-shadow:0 6px 20px rgba(0,0,0,.05);
+
+}
+
+.today-topic span{
+
+    display:block;
+
+    font-size:13px;
+
+    color:#64748b;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.today-topic h3{
+
+    margin:0;
+
+    font-size:22px;
+
+    color:#0f172a;
+
+    word-break:break-word;
+
+}
+
+.tutor-welcome h1{
+
+    font-size:52px;
+
+    font-weight:800;
+
+    margin-bottom:12px;
+
+}
+
+.tutor-welcome h2{
+
+    font-size:34px;
+
+    margin-bottom:24px;
+
+    color:#5b5cff;
+
+}
+
+.tutor-welcome p{
+
+    max-width:720px;
+
+    line-height:1.9;
+
+    font-size:18px;
+
+    color:#475569;
+
+}
+
+.status-ready{
+
+    color:#16a34a;
+
+    font-weight:700;
 
 }

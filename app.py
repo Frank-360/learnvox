@@ -1,6 +1,12 @@
 import os
 import time
 import markdown
+import traceback
+
+import os
+
+print("RUNNING APP:", os.path.abspath(__file__))
+
 
 from flask import (
     Flask,
@@ -11,7 +17,11 @@ from flask import (
 )
 
 from utils.pdf_reader import extract_text
-from utils.database import save_user
+from utils.database import (
+    save_or_update_user,
+    can_use_quick_learn,
+    increment_quick_learn
+)
 from utils.tutor import ask_tutor
 
 from utils.summarizer import generate_ai_lesson
@@ -24,6 +34,7 @@ from utils.lesson_export import (
 from utils.tts import generate_audio
 from utils.quiz_generator import generate_quiz
 from utils.flashcard_generator import generate_flashcards
+from utils.paystack import initialize_payment
 
 
 
@@ -87,13 +98,12 @@ def upload():
     # -------------------------
     # Save User
     # -------------------------
-
-    save_user(
-        full_name,
-        institution,
-        email,
-        file.filename
-    )
+    save_or_update_user(
+    full_name,
+    institution,
+    email,
+    file.filename
+)
 
     start_time = time.time()
 
@@ -126,16 +136,19 @@ def upload():
     # Store Session
     # -------------------------
 
+    # -------------------------
+# Store Session
+# -------------------------
+
     session.clear()
 
     session["CURRENT_DOCUMENT"] = text
     session["CHAT_HISTORY"] = []
 
     session["USER_NAME"] = full_name
+    session["EMAIL"] = email
     session["INSTITUTION"] = institution
     session["FILE_NAME"] = file.filename
-
-    print("Document stored successfully.")
 
     # -------------------------
     # Open AI Tutor Dashboard
@@ -154,32 +167,93 @@ def upload():
 @app.route("/quick-learn", methods=["POST"])
 def quick_learn():
 
-    document = session.get(
-        "CURRENT_DOCUMENT",
-        ""
-    )
+    print("=" * 60)
+    print("QUICK LEARN ROUTE ENTERED")
+    print("=" * 60)
 
-    if not document:
+    try:
+
+        # -------------------------
+        # Get current document
+        # -------------------------
+
+        document = session.get("CURRENT_DOCUMENT", "")
+
+        if not document:
+
+            return jsonify({
+                "success": False,
+                "message": "No document loaded."
+            }), 400
+
+        # -------------------------
+        # Get user email
+        # -------------------------
+
+        email = session.get("EMAIL")
+
+        if not email:
+
+            return jsonify({
+                "success": False,
+                "message": "No user session found."
+            }), 400
+
+        print("EMAIL:", email)
+
+        # -------------------------
+        # Check usage limit
+        # -------------------------
+
+        allowed = can_use_quick_learn(email)
+
+        print("ALLOWED:", allowed)
+
+        if not allowed:
+
+            return jsonify({
+                "success": False,
+                "upgrade": True,
+                "message": "You've reached today's free Quick Learn limit."
+            })
+
+        # -------------------------
+        # Generate lesson
+        # -------------------------
+
+        print("Generating Quick Learn...")
+
+        quick = generate_quick_learn(document)
+
+        print("Quick Learn generated successfully.")
+
+        # -------------------------
+        # Count successful usage
+        # -------------------------
+
+        increment_quick_learn(email)
+
+        print("Usage updated.")
+
+        html = markdown.markdown(quick)
+
+        return jsonify({
+
+            "success": True,
+            "quick": html
+
+        })
+
+    except Exception:
+
+        traceback.print_exc()
 
         return jsonify({
 
             "success": False,
+            "message": "Unable to generate Quick Learn."
 
-            "message": "No document loaded."
-
-        })
-
-    quick = generate_quick_learn(document)
-
-    html = markdown.markdown(quick)
-
-    return jsonify({
-
-        "success": True,
-
-        "quick": html
-
-    })
+        }), 500
 
 # =====================================================
 # SUMMARY MODE
@@ -347,9 +421,38 @@ def ask():
         return jsonify({
             "answer": str(e)
         }), 500
+    
+
+
+
+@app.route("/pricing")
+def pricing():
+    return render_template("pricing.html")
+
+
+
+@app.route("/pay", methods=["POST"])
+def pay():
+
+    print("=" * 50)
+    print("PAY ROUTE HIT")
+    print("=" * 50)
+
+    return jsonify({
+        "success": True,
+        "checkout_url": "https://paystack.com"
+    })
+
 # =====================================================
 # RUN APP
 # =====================================================
 
+
+
+print(app.url_map)
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
+
+
+

@@ -143,7 +143,11 @@ Unable to contact your AI Tutor.
 
 async function openQuickLearn() {
 
+    console.log("openQuickLearn() called");
+
     const workspace = document.getElementById("studyWorkspace");
+
+    const studentName = document.getElementById("studentName").value;
 
     workspace.style.display = "block";
 
@@ -159,6 +163,8 @@ async function openQuickLearn() {
 
     try {
 
+        console.log("Sending request to /quick-learn...");
+
         const response = await fetch("/quick-learn", {
 
             method: "POST"
@@ -167,17 +173,122 @@ async function openQuickLearn() {
 
         const data = await response.json();
 
-        if (!data.success) {
+       if (!data.success) {
 
-            output.innerHTML = `
-                <h2>Error</h2>
+    // User has reached free limit
+    if (data.upgrade) {
 
-                <p>${data.message}</p>
-            `;
+        output.innerHTML = `
 
-            return;
+        <div class="lesson-page">
 
-        }
+            <div class="study-card upgrade-card">
+
+          <h1>
+
+            🎉 Congratulations, ${studentName}!
+
+        </h1>
+
+        <p class="success-message">
+
+            You've just completed your free learning session.
+
+        </p>
+
+        <p>
+
+            You've experienced how LearnVox can simplify difficult study
+            materials into lessons that are easier to understand.
+
+        </p>
+
+        <p class="continue-message">
+
+            <strong>Your free session has ended, but your learning doesn't have to.</strong>
+
+        </p>
+
+        <p>
+
+            Continue learning without limits by becoming one of our
+            <strong>Founding Members.</strong>
+
+        </p>
+
+        <hr>
+
+        <h3>
+
+            Continue learning with:
+
+        </h3>
+
+        <ul class="upgrade-list">
+
+            <ul class="upgrade-list">
+
+            <li>📄 Unlimited Document Uploads</li>
+
+            <li>⚡ Unlimited Quick Learn</li>
+
+            <li>🧠 Unlimited Deep Dive</li>
+
+            <li>💬 Unlimited AI Tutor</li>
+
+            <li>🎧 Unlimited Audio Lessons</li>
+
+            <li>❓ Unlimited Quizzes</li>
+
+            <li>📝 Unlimited Flashcards</li>
+
+            <li>💾 Downloadable Study Notes</li>
+
+        </ul>
+
+        <div class="upgrade-price">
+
+            <small>Founding Member Price</small>
+
+            <strong>₦1,000/month</strong>
+
+        </div>
+
+        <p class="launch-note">
+
+            🔒 Lock in this launch price while Founding Membership is available.
+
+        </p>
+
+       <button
+            class="primary-btn"
+            onclick="window.location.href='/pricing'">
+
+            🚀 Continue Learning
+
+        </button>
+
+    </div>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    output.innerHTML = `
+
+        <h2>Error</h2>
+
+        <p>${data.message}</p>
+
+    `;
+
+    return;
+
+}
 
         output.innerHTML = `
 
