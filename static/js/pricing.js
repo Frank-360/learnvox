@@ -1,5 +1,7 @@
 async function startUpgrade() {
 
+    console.log("startUpgrade() has started");
+
     const button = document.getElementById("upgradeButton");
 
     button.disabled = true;
@@ -8,13 +10,19 @@ async function startUpgrade() {
 
     try {
 
+        console.log("About to call /pay");
+
         const response = await fetch("/pay", {
 
             method: "POST"
 
         });
 
+        console.log("Response received:", response.status);
+
         const data = await response.json();
+
+        console.log("Response data:", data);
 
         if (!data.success) {
 

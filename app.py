@@ -17,11 +17,15 @@ from flask import (
 )
 
 from utils.pdf_reader import extract_text
+
 from utils.database import (
     save_or_update_user,
     can_use_quick_learn,
-    increment_quick_learn
+    increment_quick_learn,
+    update_plan,
+    get_user
 )
+
 from utils.tutor import ask_tutor
 
 from utils.summarizer import generate_ai_lesson
@@ -34,7 +38,11 @@ from utils.lesson_export import (
 from utils.tts import generate_audio
 from utils.quiz_generator import generate_quiz
 from utils.flashcard_generator import generate_flashcards
-from utils.paystack import initialize_payment
+
+from utils.paystack import (
+    initialize_payment,
+    verify_payment
+)
 
 
 
@@ -434,14 +442,98 @@ def pricing():
 @app.route("/pay", methods=["POST"])
 def pay():
 
-    print("=" * 50)
-    print("PAY ROUTE HIT")
-    print("=" * 50)
+    email = session.get("EMAIL")
+
+    if not email:
+
+        return jsonify({
+            "success": False,
+            "message": "No active session."
+        }), 400
+
+    payment = initialize_payment(
+        email=email,
+        amount=1000
+    )
+
+    print("PAYSTACK RESPONSE:")
+    print(payment)
+
+    if not payment.get("status"):
+
+        return jsonify({
+            "success": False,
+            "message": payment.get(
+                "message",
+                "Unable to initialize payment."
+            )
+        }), 500
 
     return jsonify({
+
         "success": True,
-        "checkout_url": "https://paystack.com"
+
+        "checkout_url": payment["data"]["authorization_url"]
+
     })
+
+@app.route("/verify-payment")
+def verify_payment_route():
+
+    reference = request.args.get("reference")
+
+    if not reference:
+        return "No payment reference found."
+
+    payment = verify_payment(reference)
+
+    print("=" * 50)
+    print("PAYMENT VERIFICATION")
+    print(payment)
+    print("=" * 50)
+
+    if not payment.get("status"):
+        return "Payment verification failed."
+
+    data = payment.get("data", {})
+
+    if data.get("status") != "success":
+        return "Payment was not successful."
+
+    # -----------------------------------------
+    # Upgrade user to Founding Member
+    # -----------------------------------------
+
+    email = data.get("customer", {}).get("email")
+
+    if not email:
+        return "Unable to determine customer email."
+
+    update_plan(email, "pro")
+
+    return """
+    <h2>🎉 Welcome to LearnVox Founding Membership!</h2>
+
+    <p>
+    Your subscription has been activated successfully.
+    </p>
+
+    <p>
+    You now have:
+    </p>
+
+    <ul>
+        <li>✅ Unlimited Quick Learn</li>
+        <li>✅ Unlimited Deep Dive</li>
+        <li>✅ Unlimited AI Tutor</li>
+        <li>✅ Unlimited Quizzes</li>
+        <li>✅ Unlimited Flashcards</li>
+    </ul>
+
+    <p>
+    You can now return to LearnVox and continue learning.
+    </p>
+    """
 
 # =====================================================
 # RUN APP

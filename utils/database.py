@@ -128,9 +128,15 @@ def get_user(email):
 # UPDATE PLAN
 # ==========================================
 
+from datetime import datetime, timedelta, timezone
+
+
 def update_plan(email, plan):
 
     email = email.strip().lower()
+
+    start = datetime.now(timezone.utc)
+    end = start + timedelta(days=30)
 
     return (
         supabase
@@ -138,7 +144,12 @@ def update_plan(email, plan):
         .update({
 
             "plan": plan,
-            "subscription_status": "active"
+
+            "subscription_status": "active",
+
+            "subscription_start": start.isoformat(),
+
+            "subscription_end": end.isoformat()
 
         })
         .eq("email", email)
