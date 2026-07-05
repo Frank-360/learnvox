@@ -201,7 +201,7 @@ def can_use_quick_learn(email):
     print("PLAN:", user.get("plan"))
     print("QUICK LEARN USED:", user.get("quick_learn_used"))
 
-    if user.get("plan") == "pro":
+    if user.get("subscription_status") == "active":
         return True
 
     return (user.get("quick_learn_used") or 0) < 2
