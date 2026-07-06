@@ -25,7 +25,7 @@ def initialize_payment(email, amount):
         "email": email,
         "amount": amount * 100,      # Kobo
         "currency": "NGN",
-        "callback_url": "http://127.0.0.1:5000/verify-payment"
+        "callback_url": "https://learnvox.onrender.com/verify-payment"
     }
 
     print("=" * 50)
