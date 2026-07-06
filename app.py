@@ -438,6 +438,39 @@ def pricing():
     return render_template("pricing.html")
 
 
+@app.route("/account")
+def account():
+
+    print("SESSION EMAIL:", session.get("EMAIL"))
+
+    email = session.get("EMAIL")
+
+    if not email:
+
+        return jsonify({
+            "success": False,
+            "message": "No email in session"
+        }), 400
+
+    user = get_user(email)
+
+    return jsonify({
+
+        "success": True,
+
+        "plan": user.get("plan", "free"),
+
+        "subscription_status": user.get("subscription_status"),
+
+        "quick_learn_used": user.get("quick_learn_used", 0),
+
+        "deep_dive_used": user.get("deep_dive_used", 0),
+
+        "quiz_used": user.get("quiz_used", 0),
+
+        "flashcard_used": user.get("flashcard_used", 0)
+
+    })
 
 @app.route("/pay", methods=["POST"])
 def pay():

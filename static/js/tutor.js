@@ -1460,3 +1460,89 @@ function focusChat() {
         .focus();
 
 }
+
+
+// =========================================
+// LOAD USER ACCOUNT
+// =========================================
+
+async function loadAccount() {
+
+    try {
+
+        const response = await fetch("/account");
+
+        const data = await response.json();
+
+        if (!data.success) return;
+
+        const plan = document.getElementById("planName");
+
+        const quick = document.getElementById("quickRemaining");
+
+        const deep = document.getElementById("deepRemaining");
+
+        const description = document.getElementById("planDescription");
+
+        const label = document.getElementById("planLabel");
+
+        // -----------------------------
+        // Founding Member
+        // -----------------------------
+
+        if (data.plan === "pro") {
+
+            const planCard = document.getElementById("planCard");
+
+            planCard.classList.add("founding-member");
+
+            label.innerHTML =
+                "👑 Founding Member";
+
+            plan.innerHTML =
+                "⭐ Lifetime Launch Member";
+
+                description.innerHTML =
+                    "You locked in your exclusive ₦1,000/month Founding Member launch price.";
+
+            quick.innerHTML = "♾️ Unlimited";
+
+            deep.innerHTML = "♾️ Unlimited";
+
+            return;
+        }
+
+        // -----------------------------
+        // Free Plan
+        // -----------------------------
+
+
+        label.innerHTML =
+             "👑 Your Plan";
+
+        plan.innerHTML = "Free Plan";
+
+        planCard.classList.remove("founding-member");
+
+        description.innerHTML =
+            "You're currently enjoying LearnVox Free.";
+
+        const quickRemaining = Math.max(0, 2 - data.quick_learn_used);
+
+        const deepRemaining = Math.max(0, 1 - data.deep_dive_used);
+
+        quick.innerHTML = quickRemaining + " Remaining";
+
+        deep.innerHTML = deepRemaining + " Remaining";
+
+    }
+
+    catch(error){
+
+        console.error("Unable to load account.", error);
+
+    }
+
+}
+
+loadAccount();

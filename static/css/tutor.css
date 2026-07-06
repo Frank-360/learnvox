@@ -2762,3 +2762,45 @@ img{
     font-weight:700;
 
 }
+
+/* ==========================================
+   FOUNDING MEMBER CARD
+========================================== */
+
+.founding-member {
+
+    background: linear-gradient(
+        135deg,
+        #fff8dc,
+        #ffe082,
+        #ffd54f
+    );
+
+    border: 2px solid #f4b400;
+
+    box-shadow: 0 12px 35px rgba(212, 175, 55, .35);
+
+    transform: translateY(-2px);
+
+    transition: all .35s ease;
+}
+
+.founding-member h2{
+
+    color:#8a5b00;
+
+    font-weight:700;
+
+}
+
+.founding-member .dashboard-label{
+
+    color:#8a5b00;
+
+}
+
+.founding-member p{
+
+    color:#6d4c00;
+
+}
