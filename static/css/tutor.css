@@ -2804,3 +2804,122 @@ img{
     color:#6d4c00;
 
 }
+
+/* ==========================================
+   WORKSPACE FOCUS
+========================================== */
+
+.study-workspace{
+
+    transition: all .45s ease;
+
+}
+
+.workspace-focus{
+
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 0 0 4px rgba(72,149,239,.12),
+        0 18px 50px rgba(72,149,239,.18);
+
+    border-radius:20px;
+
+}
+
+
+/* ==========================================
+   LOADING EXPERIENCE
+========================================== */
+
+.loading-screen{
+
+    text-align:center;
+
+    padding:70px 30px;
+
+}
+
+.loading-emoji{
+
+    font-size:70px;
+
+    animation:bounce 1.4s infinite;
+
+}
+
+.loading-screen h2{
+
+    margin-top:20px;
+
+    font-size:30px;
+
+}
+
+.loading-screen p{
+
+    color:#666;
+
+    margin-top:20px;
+
+}
+
+.loading-bar{
+
+    width:320px;
+
+    height:10px;
+
+    background:#e7e7e7;
+
+    border-radius:20px;
+
+    margin:35px auto;
+
+    overflow:hidden;
+
+}
+
+.loading-progress{
+
+    width:35%;
+
+    height:100%;
+
+    background:#3b82f6;
+
+    animation:loadingMove 1.2s infinite alternate;
+
+}
+
+@keyframes loadingMove{
+
+    from{
+
+        width:20%;
+
+    }
+
+    to{
+
+        width:85%;
+
+    }
+
+}
+
+@keyframes bounce{
+
+    0%,100%{
+
+        transform:translateY(0);
+
+    }
+
+    50%{
+
+        transform:translateY(-10px);
+
+    }
+
+}

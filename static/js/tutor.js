@@ -137,11 +137,140 @@ Unable to contact your AI Tutor.
 
 }
 
-// ======================================
-// QUICK LEARN
-// ======================================
+// =========================================
+// FOCUS STUDY WORKSPACE
+// =========================================
 
-async function openQuickLearn() {
+function focusWorkspace(button = null) {
+
+    const workspace = document.getElementById("studyWorkspace");
+
+    if (button) {
+
+        button.style.transform = "scale(.96)";
+
+    }
+
+    workspace.classList.add("workspace-focus");
+
+    workspace.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "start"
+
+    });
+
+    setTimeout(() => {
+
+        workspace.classList.remove("workspace-focus");
+
+        if (button) {
+
+            button.style.transform = "";
+
+        }
+
+    }, 1200);
+
+}
+
+
+// =========================================
+// SHOW LOADING
+// =========================================
+
+function showLoading(title, message) {
+
+    const workspace =
+        document.getElementById("studyOutput");
+
+    workspace.innerHTML = `
+
+    <div class="loading-screen">
+
+        <div class="loading-emoji">
+
+            🧠
+
+        </div>
+
+        <h2>
+
+            ${title}
+
+        </h2>
+
+        <div class="loading-bar">
+
+            <div class="loading-progress"></div>
+
+        </div>
+
+        <p>
+
+            ${message}
+
+        </p>
+
+    </div>
+
+    `;
+
+}
+
+// =========================================
+// LOADING MESSAGES
+// =========================================
+
+let loadingInterval = null;
+
+function animateLoading(messages) {
+
+    const text = document.querySelector(".loading-screen p");
+
+    if (!text) return;
+
+    let index = 0;
+
+    text.innerHTML = messages[0];
+
+    clearInterval(loadingInterval);
+
+    loadingInterval = setInterval(() => {
+
+        index = (index + 1) % messages.length;
+
+        text.innerHTML = messages[index];
+
+    }, 1200);
+
+}
+// =========================================
+// QUICK LEARN
+// =========================================
+
+async function openQuickLearn(event) {
+
+    focusWorkspace(event.currentTarget);
+
+    showLoading(
+    "🧠 I'm reading your document...",
+    "Finding the key ideas..."
+);
+
+animateLoading([
+
+    "Finding the key ideas...",
+
+    "Connecting important concepts...",
+
+    "Preparing your personalised lesson..."
+
+]);
+    // ------------------------------------
+// Jump to workspace
+// ------------------------------------
 
     console.log("openQuickLearn() called");
 
@@ -153,13 +282,6 @@ async function openQuickLearn() {
 
     const output = document.getElementById("studyOutput");
 
-    output.innerHTML = `
-        <h2>⚡ Building Quick Learn...</h2>
-        <p>
-            LearnVox is finding the fastest way
-            to help you understand this topic.
-        </p>
-    `;
 
     try {
 
@@ -171,7 +293,23 @@ async function openQuickLearn() {
 
         });
 
-        const data = await response.json();
+       const data = await response.json();
+
+        clearInterval(loadingInterval);
+
+        const loadingText =
+            document.querySelector(".loading-screen p");
+
+        if (loadingText){
+
+            loadingText.innerHTML =
+                "✨ Your lesson is ready...";
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 500)
+            );
+
+        }
 
        if (!data.success) {
 
@@ -338,7 +476,7 @@ async function openQuickLearn() {
 
                 class="primary-btn tutor-btn"
 
-                onclick="openDeepDive()">
+                onclick="openDeepDive(event)">
 
                 🧠 Tutor Me
 
@@ -365,28 +503,33 @@ async function openQuickLearn() {
 // AI TUTOR
 // ======================================
 
-async function openDeepDive() {
+    async function openDeepDive(event) {
+
+    focusWorkspace(event.currentTarget);
+
+    showLoading(
+    "📖 I'm preparing today's lesson...",
+    "Organising the topic into simple explanations..."
+);
+
+animateLoading([
+
+    "Organising the topic into simple explanations...",
+
+     "Preparing your audio lesson...",
+
+    "Creating quizzes and flashcards..."
+
+]);
+    // ------------------------------------
+// Jump to workspace
+// ------------------------------------
 
     const workspace = document.getElementById("studyWorkspace");
 
     workspace.style.display = "block";
 
-    console.log("AI Tutor clicked");
-
     const output = document.getElementById("studyOutput");
-
-    console.log("Output element:", output);
-
-output.innerHTML = `
-    <h2>🧠 Your AI Tutor is Getting Ready...</h2>
-    <p>
-        Reading your document...
-        <br>
-        Finding the most important concepts...
-        <br>
-        Preparing a step-by-step tutoring session...
-    </p>
-`;
 
     try {
 
@@ -395,19 +538,30 @@ output.innerHTML = `
         });
 
         const data = await response.json();
-        console.log("Audio URL:", data.audio_file);
 
-        console.log(data);
+clearInterval(loadingInterval);
 
-        if (!data.success) {
+if (!data.success) {
 
-            output.innerHTML = `
-                <h2>Error</h2>
-                <p>${data.message}</p>
-            `;
+    output.innerHTML = `
+        <h2>Error</h2>
+        <p>${data.message}</p>
+    `;
 
-            return;
-        }
+    return;
+}
+
+const loadingText =
+    document.querySelector(".loading-screen p");
+
+if (loadingText) {
+
+    loadingText.innerHTML =
+        "✨ Your lesson is ready...";
+
+    await new Promise(resolve =>
+        setTimeout(resolve, 500));
+}
 
 
     const studentName = document.getElementById("studentName").value;
@@ -621,7 +775,27 @@ output.innerHTML = `
 }
 
 
-function openAskMe() {
+async function openAskMe(event) {
+
+    focusWorkspace(event.currentTarget);
+
+    showLoading(
+    "💬 I'm thinking about your question...",
+    "Finding the best explanation..."
+);
+
+animateLoading([
+
+    "Finding the best explanation...",
+
+    "Looking through your document...",
+
+    "Preparing an easy-to-understand answer..."
+
+]);
+    // ------------------------------------
+// Jump to workspace
+// ------------------------------------
 
     const workspace = document.getElementById("studyWorkspace");
 
@@ -735,6 +909,8 @@ async function openQuiz() {
         });
 
         const data = await response.json();
+
+        clearInterval(loadingInterval);
 
         if (!data.success) {
 
