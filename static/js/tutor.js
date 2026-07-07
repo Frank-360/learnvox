@@ -1482,17 +1482,23 @@ async function loadAccount() {
 
         const deep = document.getElementById("deepRemaining");
 
+        const documents = document.getElementById("documentsUploaded");
+
+        const documentsDescription =
+             document.getElementById("documentsDescription");
+
         const description = document.getElementById("planDescription");
 
+
         const label = document.getElementById("planLabel");
+
+        const planCard = document.getElementById("planCard");
 
         // -----------------------------
         // Founding Member
         // -----------------------------
 
         if (data.plan === "pro") {
-
-            const planCard = document.getElementById("planCard");
 
             planCard.classList.add("founding-member");
 
@@ -1508,6 +1514,11 @@ async function loadAccount() {
             quick.innerHTML = "♾️ Unlimited";
 
             deep.innerHTML = "♾️ Unlimited";
+
+            documents.innerHTML = data.documents_uploaded;
+
+            documentsDescription.innerHTML =
+            "Documents you've studied with LearnVox.";
 
             return;
         }
@@ -1534,6 +1545,12 @@ async function loadAccount() {
         quick.innerHTML = quickRemaining + " Remaining";
 
         deep.innerHTML = deepRemaining + " Remaining";
+
+        documents.innerHTML = data.documents_uploaded;
+
+        documentsDescription.innerHTML =
+         "Documents you've studied with LearnVox.";
+
 
     }
 

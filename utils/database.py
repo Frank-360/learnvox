@@ -48,7 +48,7 @@ def save_or_update_user(full_name, institution, email, filename):
                     "full_name": full_name,
                     "institution": institution,
                     "filename": filename,
-                    "documents_uploaded": documents + 1
+                    "documents_uploaded": documents
 
                 })
                 .eq("id", user["id"])
@@ -79,7 +79,7 @@ def save_or_update_user(full_name, institution, email, filename):
     "quiz_used": 0,
     "flashcard_used": 0,
 
-    "documents_uploaded": 1,
+    "documents_uploaded": 0,
     "last_reset": str(date.today())
 
 })
@@ -238,6 +238,82 @@ def increment_quick_learn(email):
         .update({
 
             "quick_learn_used": used + 1
+
+        })
+        .eq("email", email)
+        .execute()
+    )
+
+# ==========================================
+# CAN USE DEEP DIVE?
+# ==========================================
+
+def can_use_deep_dive(email):
+
+    email = email.strip().lower()
+
+    reset_daily_usage_if_needed(email)
+
+    user = get_user(email)
+
+    if not user:
+        return False
+
+    if user["plan"] == "pro":
+        return True
+
+    return (user.get("deep_dive_used") or 0) < 1
+
+
+# ==========================================
+# INCREMENT DEEP DIVE
+# ==========================================
+
+def increment_deep_dive(email):
+
+    email = email.strip().lower()
+
+    user = get_user(email)
+
+    if not user:
+        return
+
+    used = user.get("deep_dive_used") or 0
+
+    (
+        supabase
+        .table("learnvox_users")
+        .update({
+
+            "deep_dive_used": used + 1
+
+        })
+        .eq("email", email)
+        .execute()
+    )
+
+
+    # ==========================================
+# INCREMENT DOCUMENTS STUDIED
+# ==========================================
+
+def increment_documents_uploaded(email):
+
+    email = email.strip().lower()
+
+    user = get_user(email)
+
+    if not user:
+        return
+
+    documents = user.get("documents_uploaded") or 0
+
+    (
+        supabase
+        .table("learnvox_users")
+        .update({
+
+            "documents_uploaded": documents + 1
 
         })
         .eq("email", email)

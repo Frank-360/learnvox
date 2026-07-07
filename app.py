@@ -21,11 +21,13 @@ from utils.pdf_reader import extract_text
 from utils.database import (
     save_or_update_user,
     can_use_quick_learn,
+    can_use_deep_dive,
     increment_quick_learn,
+    increment_deep_dive,
+    increment_documents_uploaded,
     update_plan,
     get_user
 )
-
 from utils.tutor import ask_tutor
 
 from utils.summarizer import generate_ai_lesson
@@ -241,6 +243,8 @@ def quick_learn():
 
         increment_quick_learn(email)
 
+        increment_documents_uploaded(email)
+
         print("Usage updated.")
 
         html = markdown.markdown(quick)
@@ -270,18 +274,32 @@ def quick_learn():
 @app.route("/summary", methods=["POST"])
 def summary():
 
-    document = session.get(
-        "CURRENT_DOCUMENT",
-        ""
-    )
+    document = session.get("CURRENT_DOCUMENT", "")
 
     if not document:
 
         return jsonify({
-
             "success": False,
             "message": "No document loaded."
+        })
 
+    email = session.get("EMAIL")
+
+    if not email:
+
+        return jsonify({
+            "success": False,
+            "message": "No user session found."
+        }), 400
+
+    allowed = can_use_deep_dive(email)
+
+    if not allowed:
+
+        return jsonify({
+            "success": False,
+            "upgrade": True,
+            "message": "You've reached today's free Deep Dive limit."
         })
 
     lesson = generate_ai_lesson(document)
@@ -315,6 +333,12 @@ def summary():
     )
 
     html_lesson = markdown.markdown(lesson)
+
+# -------------------------
+# Count successful Deep Dive
+# -------------------------
+
+    increment_deep_dive(email)
 
     return jsonify({
 
@@ -468,7 +492,8 @@ def account():
 
         "quiz_used": user.get("quiz_used", 0),
 
-        "flashcard_used": user.get("flashcard_used", 0)
+        "flashcard_used": user.get("flashcard_used", 0),
+        "documents_uploaded": user.get("documents_uploaded", 0)
 
     })
 
