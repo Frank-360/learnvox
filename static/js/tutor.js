@@ -220,6 +220,28 @@ function showLoading(title, message) {
 }
 
 // =========================================
+// LEARNVOX MODAL
+// =========================================
+
+function showModal(html){
+
+    document.getElementById("learnvoxModal")
+        .style.display = "flex";
+
+    document.getElementById("learnvoxModalContent")
+        .innerHTML = html;
+
+}
+
+function closeModal(){
+
+    document.getElementById("learnvoxModal")
+        .style.display = "none";
+
+}
+
+
+// =========================================
 // LOADING MESSAGES
 // =========================================
 
@@ -252,29 +274,27 @@ function animateLoading(messages) {
 
 async function openQuickLearn(event) {
 
+    const workspace = document.getElementById("studyWorkspace");
+
+    workspace.style.display = "block";
+
     focusWorkspace(event.currentTarget);
 
     showLoading(
-    "🧠 I'm reading your document...",
-    "Finding the key ideas..."
-);
+        "🧠 I'm reading your document...",
+        "Finding the key ideas..."
+    );
 
-animateLoading([
-
-    "Finding the key ideas...",
-
-    "Connecting important concepts...",
-
-    "Preparing your personalised lesson..."
-
-]);
+    animateLoading([
+        "Finding the key ideas...",
+        "Connecting important concepts...",
+        "Preparing your personalised lesson..."
+    ]);
     // ------------------------------------
 // Jump to workspace
 // ------------------------------------
 
     console.log("openQuickLearn() called");
-
-    const workspace = document.getElementById("studyWorkspace");
 
     const studentName = document.getElementById("studentName").value;
 
@@ -314,107 +334,102 @@ animateLoading([
        if (!data.success) {
 
     // User has reached free limit
-    if (data.upgrade) {
+   if (data.upgrade) {
 
-        output.innerHTML = `
+    const displayName = studentName
+        .split(" ")
+        .map(name =>
+            name.charAt(0).toUpperCase() +
+            name.slice(1).toLowerCase()
+        )
+        .join(" ");
 
-        <div class="lesson-page">
+    showModal(`
 
-            <div class="study-card upgrade-card">
+        <div class="moment-icon">
 
-          <h1>
-
-            🎉 Congratulations, ${studentName}!
-
-        </h1>
-
-        <p class="success-message">
-
-            You've just completed your free learning session.
-
-        </p>
-
-        <p>
-
-            You've experienced how LearnVox can simplify difficult study
-            materials into lessons that are easier to understand.
-
-        </p>
-
-        <p class="continue-message">
-
-            <strong>Your free session has ended, but your learning doesn't have to.</strong>
-
-        </p>
-
-        <p>
-
-            Continue learning without limits by becoming one of our
-            <strong>Founding Members.</strong>
-
-        </p>
-
-        <hr>
-
-        <h3>
-
-            Continue learning with:
-
-        </h3>
-
-        <ul class="upgrade-list">
-
-            <ul class="upgrade-list">
-
-            <li>📄 Unlimited Document Uploads</li>
-
-            <li>⚡ Unlimited Quick Learn</li>
-
-            <li>🧠 Unlimited Deep Dive</li>
-
-            <li>💬 Unlimited AI Tutor</li>
-
-            <li>🎧 Unlimited Audio Lessons</li>
-
-            <li>❓ Unlimited Quizzes</li>
-
-            <li>📝 Unlimited Flashcards</li>
-
-            <li>💾 Downloadable Study Notes</li>
-
-        </ul>
-
-        <div class="upgrade-price">
-
-            <small>Founding Member Price</small>
-
-            <strong>₦1,000/month</strong>
+            👑
 
         </div>
 
-        <p class="launch-note">
+        <h1>
 
-            🔒 Lock in this launch price while Founding Membership is available.
+            <h1>
+
+                🚀 Unlock Unlimited Learning
+
+            </h1>
+
+        </h1>
+
+        <p class="moment-message">
+
+            🎉 Congratulations,
+            <strong>${displayName}</strong>!
 
         </p>
 
-       <button
-            class="primary-btn"
-            onclick="window.location.href='/pricing'">
+        <p>
 
-            🚀 Continue Learning
+            You've made great progress today.
+
+        </p>
+
+        <p>
+
+            Your free learning session is complete.
+
+        </p>
+
+        <p>
+
+            <strong>Keep your momentum going.</strong>
+
+            Become a Founding Member and continue learning without limits.
+
+        </p>
+
+        </p>
+
+        <div class="moment-benefits">
+
+            <div>♾️ Unlimited Quick Learn</div>
+
+            <div>♾️ Unlimited Deep Dive</div>
+
+            <div class="featured-benefit">
+
+                ⭐ Unlimited AI Tutor
+
+                    <span>
+
+                         Most Popular
+
+                    </span>
+
+        </div>
+
+            <div>♾️ Unlimited Quizzes</div>
+
+            <div>♾️ Unlimited Flashcards</div>
+
+            <div>🎧 Unlimited Audio Lessons</div>
+
+        </div>
+
+        <button
+            class="primary-btn"
+            onclick="window.location='/pricing'">
+
+            👑 Become a Founding Member
 
         </button>
 
-    </div>
+    `);
 
-</div>
+    return;
 
-`;
-
-        return;
-
-    }
+}
 
     output.innerHTML = `
 
@@ -476,7 +491,7 @@ animateLoading([
 
                 class="primary-btn tutor-btn"
 
-                onclick="openDeepDive(event)">
+                onclick="openDeepDive({ currentTarget: this })">
 
                 🧠 Tutor Me
 
@@ -503,14 +518,18 @@ animateLoading([
 // AI TUTOR
 // ======================================
 
-    async function openDeepDive(event) {
+  async function openDeepDive(event) {
+
+    const workspace = document.getElementById("studyWorkspace");
+
+    workspace.style.display = "block";
 
     focusWorkspace(event.currentTarget);
 
     showLoading(
-    "📖 I'm preparing today's lesson...",
-    "Organising the topic into simple explanations..."
-);
+        "📖 I'm preparing today's lesson...",
+        "Organising the topic into simple explanations..."
+    );
 
 animateLoading([
 
@@ -524,8 +543,6 @@ animateLoading([
     // ------------------------------------
 // Jump to workspace
 // ------------------------------------
-
-    const workspace = document.getElementById("studyWorkspace");
 
     workspace.style.display = "block";
 
