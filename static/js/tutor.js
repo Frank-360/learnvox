@@ -242,6 +242,91 @@ function closeModal(){
 
 
 // =========================================
+// DAILY LEARNING COMPLETE
+// =========================================
+
+function showDailyLearningComplete(studentName, documents){
+
+    showModal(`
+
+        <div class="moment-icon">
+
+            🎉
+
+        </div>
+
+        <h1>
+
+            Daily Learning Complete
+
+        </h1>
+
+        <p class="moment-message">
+
+            Excellent work today,
+            <strong>${studentName}</strong>!
+
+        </p>
+
+        <p>
+
+            Here's what you achieved today:
+
+        </p>
+
+        <div class="moment-benefits">
+
+            <div>⚡ 2 Quick Learn Sessions</div>
+
+            <div>🧠 1 Deep Dive Session</div>
+
+            <div>📄 ${documents} Documents in Your Study Library</div>
+
+        </div>
+
+       <p class="progress-message">
+
+                🌱 You're building a great learning habit.
+
+        </p>
+
+        <div class="moment-divider"></div>
+
+        <h3>
+
+                ⭐ Keep your momentum going.
+
+        </h3>
+
+        <p>
+
+            You've completed today's free learning.
+
+            Continue learning now with Founding Membership,
+            or return tomorrow for another free learning session.
+
+        </p>
+
+        <button
+            class="primary-btn"
+            onclick="window.location='/pricing'">
+
+            👑 Become a Founding Member
+
+        </button>
+
+        <p class="payment-note">
+
+            🔒 Lock in your ₦1,000/month Founding Member launch price.
+
+        </p>
+
+    `);
+
+}
+
+
+// =========================================
 // LOADING MESSAGES
 // =========================================
 
@@ -503,6 +588,8 @@ async function openQuickLearn(event) {
 
         `;
 
+        loadAccount();
+
 
     }
 
@@ -560,6 +647,29 @@ clearInterval(loadingInterval);
 
 if (!data.success) {
 
+    // 🎉 Daily learning completed
+    if (data.daily_complete) {
+
+        const studentName =
+            document.getElementById("studentName").value;
+
+        const displayName = studentName
+            .split(" ")
+            .map(name =>
+                name.charAt(0).toUpperCase() +
+                name.slice(1).toLowerCase()
+            )
+            .join(" ");
+
+        showDailyLearningComplete(
+            displayName,
+            data.documents_uploaded
+        );
+
+        return;
+    }
+
+    // Other errors
     output.innerHTML = `
         <h2>Error</h2>
         <p>${data.message}</p>
@@ -775,6 +885,7 @@ if (loadingText) {
 
 `;
 
+loadAccount();
 
     }
 

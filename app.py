@@ -114,6 +114,8 @@ def upload():
     email,
     file.filename
 )
+    
+    increment_documents_uploaded(email)
 
     start_time = time.time()
 
@@ -217,15 +219,17 @@ def quick_learn():
 
         allowed = can_use_quick_learn(email)
 
-        print("ALLOWED:", allowed)
-
         if not allowed:
 
             return jsonify({
-                "success": False,
-                "upgrade": True,
-                "message": "You've reached today's free Quick Learn limit."
-            })
+
+        "success": False,
+
+        "upgrade": True,
+
+        "message": "You've reached today's free Quick Learn limit."
+
+    })
 
         # -------------------------
         # Generate lesson
@@ -242,8 +246,6 @@ def quick_learn():
         # -------------------------
 
         increment_quick_learn(email)
-
-        increment_documents_uploaded(email)
 
         print("Usage updated.")
 
@@ -296,11 +298,29 @@ def summary():
 
     if not allowed:
 
+        user = get_user(email)
+
         return jsonify({
-            "success": False,
-            "upgrade": True,
-            "message": "You've reached today's free Deep Dive limit."
-        })
+
+        "success": False,
+
+        "upgrade": True,
+
+        "daily_complete": (
+            user.get("plan") == "free"
+            and user.get("quick_learn_used", 0) >= 2
+            and user.get("deep_dive_used", 0) >= 1
+        ),
+
+        "quick_learn_used": user.get("quick_learn_used", 0),
+
+        "deep_dive_used": user.get("deep_dive_used", 0),
+
+        "documents_uploaded": user.get("documents_uploaded", 0),
+
+        "message": "You've completed today's free learning."
+
+    })
 
     lesson = generate_ai_lesson(document)
 
@@ -478,6 +498,13 @@ def account():
 
     user = get_user(email)
 
+    if not user:
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to retrieve your account."
+        }), 500
+
     return jsonify({
 
         "success": True,
@@ -493,6 +520,7 @@ def account():
         "quiz_used": user.get("quiz_used", 0),
 
         "flashcard_used": user.get("flashcard_used", 0),
+
         "documents_uploaded": user.get("documents_uploaded", 0)
 
     })
