@@ -82,7 +82,7 @@ def upload():
     # -------------------------
 
     full_name = request.form["full_name"]
-    institution = request.form["institution"]
+    institution = request.form.get("institution", "").strip()
     email = request.form["email"]
 
     print("USER:", full_name)
