@@ -244,27 +244,19 @@ body{
 }
 
 .upgrade-btn{
-
-    background:white;
-
+    display:block !important;
+    width:100%;
+    max-width:350px;
+    margin:20px auto;
+    padding:18px;
+    background:#ffffff;
     color:#2563eb;
-
     border:none;
-
-    padding:18px 40px;
-
     border-radius:50px;
-
     font-size:18px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    margin-bottom:20px;
-
-    transition:.3s;
-
+    font-weight:700;
+    visibility:visible !important;
+    opacity:1 !important;
 }
 
 .upgrade-btn:hover{
@@ -321,4 +313,58 @@ footer{
 
     opacity:.9;
 
+}
+/* =====================================
+        MOBILE RESPONSIVE
+===================================== */
+
+@media (max-width: 768px) {
+
+    .pricing-page{
+        padding:20px 15px;
+    }
+
+    .hero{
+        margin-bottom:35px;
+    }
+
+    .hero h1{
+        font-size:32px;
+        line-height:1.25;
+    }
+
+    .hero p{
+        font-size:16px;
+    }
+
+    .pricing-card{
+        padding:30px 20px;
+    }
+
+    .price{
+        font-size:48px;
+    }
+
+    .price span{
+        font-size:18px;
+    }
+
+    .benefit-grid{
+        grid-template-columns:1fr;
+    }
+
+    .upgrade-btn{
+        width:100%;
+        max-width:none;
+    }
+
+    .progress-card,
+    .reward-card{
+        padding:20px;
+    }
+
+    footer{
+        margin-top:40px;
+        padding-bottom:40px;
+    }
 }
