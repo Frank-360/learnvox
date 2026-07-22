@@ -437,15 +437,7 @@ async function openQuickLearn(event) {
 
         </div>
 
-        <h1>
-
-            <h1>
-
-                🚀 Unlock Unlimited Learning
-
-            </h1>
-
-        </h1>
+            <h1>🚀 Unlock Unlimited Learning</h1>
 
         <p class="moment-message">
 
@@ -473,9 +465,7 @@ async function openQuickLearn(event) {
             Become a Founding Member and continue learning without limits.
 
         </p>
-
-        </p>
-
+        
         <div class="moment-benefits">
 
             <div>♾️ Unlimited Quick Learn</div>
