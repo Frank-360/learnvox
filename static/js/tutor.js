@@ -353,6 +353,7 @@ function animateLoading(messages) {
     }, 1200);
 
 }
+
 // =========================================
 // QUICK LEARN
 // =========================================
@@ -465,7 +466,7 @@ async function openQuickLearn(event) {
             Become a Founding Member and continue learning without limits.
 
         </p>
-        
+
         <div class="moment-benefits">
 
             <div>♾️ Unlimited Quick Learn</div>
@@ -802,26 +803,34 @@ if (loadingText) {
             or revise using flashcards.
 
         </p>
-
+    
         <div class="lesson-actions">
 
-            <button
-                class="primary-btn"
-                onclick="openQuiz()">
+    <button
+        class="primary-btn"
+        onclick="openQuiz()">
 
-                ❓ Quiz Me
+        ❓ Quiz Me
 
-            </button>
+    </button>
 
-            <button
-                class="secondary-btn"
-                onclick="openFlashcards()">
+    <button
+        class="secondary-btn"
+        onclick="openFlashcards()">
 
-                📝 Flashcards
+        📝 Flashcards
 
-            </button>
+    </button>
 
-        </div>
+    <button
+        class="secondary-btn"
+        onclick="openAskMe({ currentTarget: this })">
+
+        💬 Ask Tutor
+
+    </button>
+
+</div>
 
     </div>
 
@@ -1006,6 +1015,15 @@ let score = 0;
 
 async function openQuiz() {
 
+    // Resume existing quiz if one is already in progress
+    if (
+        quizQuestions.length > 0 &&
+        currentQuestion < quizQuestions.length
+    ) {
+        showQuestion();
+        return;
+    }
+
     const output = document.getElementById("studyOutput");
 
     output.innerHTML = `
@@ -1028,39 +1046,28 @@ async function openQuiz() {
 
         const data = await response.json();
 
-        clearInterval(loadingInterval);
-
         if (!data.success) {
 
             output.innerHTML = `
                 <div class="lesson-page">
-
                     <h2>Error</h2>
-
                     <p>${data.message}</p>
-
                 </div>
             `;
 
             return;
-
         }
 
         startQuiz(data.quiz.questions);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(error);
 
         output.innerHTML = `
             <div class="lesson-page">
-
                 <h2>Something went wrong.</h2>
-
                 <p>Please try again.</p>
-
             </div>
         `;
 
@@ -1247,39 +1254,44 @@ function submitAnswer(selectedIndex) {
 
         </div>
 
-        <div class="quiz-footer">
+     <div class="quiz-footer">
 
-            <span>
+    <span>
 
-                Score:
+        Score:
+        <strong>${score}</strong> / ${quizQuestions.length}
 
-                <strong>
+    </span>
 
-                    ${score}
+    <div class="lesson-actions">
 
-                </strong>
+        <button
+            class="primary-btn"
+            onclick="nextQuestion()">
 
-                /
+            ${
+                currentQuestion + 1 === quizQuestions.length
+                ? "🏆 Finish Quiz"
+                : "➡ Next Question"
+            }
 
-                ${quizQuestions.length}
+        </button>
 
-            </span>
+        <button
+            class="secondary-btn"
+            onclick="openFlashcards()">
 
-            <button
+            📝 Flashcards
 
-                class="primary-btn"
+        </button>
 
-                onclick="nextQuestion()">
+        <button
+            class="secondary-btn"
+            onclick="openAskMe({ currentTarget: this })">
 
-                ${
-                    currentQuestion + 1 === quizQuestions.length
-                    ? "🏆 Finish Quiz"
-                    : "➡ Next Question"
-                }
+            💬 Ask Tutor
 
-            </button>
-
-        </div>
+        </button>
 
     </div>
 
@@ -1415,34 +1427,33 @@ function finishQuiz() {
             Continue strengthening your understanding using any of the learning tools below.
 
         </p>
+<div class="lesson-actions">
 
-        <div class="lesson-actions">
+    <button
+        class="primary-btn"
+        onclick="openFlashcards()">
 
-            <button
-                class="primary-btn"
-                onclick="openDeepDive()">
+        📝 Review Flashcards
 
-                📖 Review Lesson
+    </button>
 
-            </button>
+    <button
+        class="secondary-btn"
+        onclick="openAskMe({ currentTarget: this })">
 
-            <button
-                class="secondary-btn"
-                onclick="openFlashcards()">
+        💬 Ask Tutor
 
-                📝 Flashcards
+    </button>
 
-            </button>
+    <button
+        class="secondary-btn"
+        onclick="openQuiz()">
 
-            <button
-                class="secondary-btn"
-                onclick="openQuiz()">
+        🔄 Retake Quiz
 
-                🔄 Try Again
+    </button>
 
-            </button>
-
-        </div>
+    </div>
 
     </div>
 
@@ -1466,6 +1477,15 @@ let showingAnswer = false;
 
 async function openFlashcards() {
 
+    // Resume existing flashcards if they already exist
+    if (
+        flashcards.length > 0 &&
+        currentFlashcard < flashcards.length
+    ) {
+        showFlashcard();
+        return;
+    }
+
     const output = document.getElementById("studyOutput");
 
     output.innerHTML = `
@@ -1484,43 +1504,37 @@ async function openFlashcards() {
 
     `;
 
-try {
+    try {
 
-    const response = await fetch("/flashcards");
+        const response = await fetch("/flashcards");
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!data.success) {
+        if (!data.success) {
 
-        throw new Error("Unable to generate flashcards.");
+            throw new Error("Unable to generate flashcards.");
 
+        }
+
+        flashcards = data.flashcards;
+
+        currentFlashcard = 0;
+
+        showingAnswer = false;
+
+        showFlashcard();
+
+    } catch (error) {
+
+        console.error(error);
+
+        output.innerHTML = `
+            <div class="study-card">
+                <h2>❌ Error</h2>
+                <p>${error.message}</p>
+            </div>
+        `;
     }
-
-    flashcards = data.flashcards;
-
-    currentFlashcard = 0;
-
-    showingAnswer = false;
-
-    showFlashcard();
-
-} catch (error) {
-
-    console.error(error);
-
-    output.innerHTML = `
-
-        <div class="study-card">
-
-            <h2>❌ Error</h2>
-
-            <p>${error.message}</p>
-
-        </div>
-
-    `;
-
-}
 }
 
 function showFlashcard(){
@@ -1589,29 +1603,40 @@ function showFlashcard(){
 
     <div class="lesson-actions">
 
-        <button
+    <button
+        class="secondary-btn"
+        onclick="previousFlashcard()"
+        ${currentFlashcard===0 ? "disabled":""}>
 
-            class="secondary-btn"
+        ◀ Previous
 
-            onclick="previousFlashcard()"
+    </button>
 
-            ${currentFlashcard===0 ? "disabled":""}>
+    <button
+        class="primary-btn"
+        onclick="nextFlashcard()">
 
-            ◀ Previous
+        ${currentFlashcard===flashcards.length-1 ? "🎉 Finish" : "Next ▶"}
 
-        </button>
+    </button>
 
-        <button
+    <button
+        class="secondary-btn"
+        onclick="openQuiz()">
 
-            class="primary-btn"
+        ❓ Quiz
 
-            onclick="nextFlashcard()">
+    </button>
 
-            ${currentFlashcard===flashcards.length-1 ? "🎉 Finish" : "Next ▶"}
+    <button
+        class="secondary-btn"
+        onclick="openAskMe({ currentTarget: this })">
 
-        </button>
+        💬 Ask Tutor
 
-    </div>
+    </button>
+
+</div>
 
 </div>
 
@@ -1723,15 +1748,31 @@ function finishFlashcards(){
 
             </button>
 
-            <button
+            <div class="lesson-actions">
 
-                class="secondary-btn"
+    <button
+        class="primary-btn"
+        onclick="openQuiz()">
 
-                onclick="openDeepDive()">
+        ❓ Quiz Me
 
-                📖 Review Lesson
+    </button>
 
-            </button>
+    <button
+        class="secondary-btn"
+        onclick="openAskMe({ currentTarget: this })">
+
+        💬 Ask Tutor
+
+    </button>
+
+    <button
+        class="secondary-btn"
+        onclick="openFlashcards()">
+
+        🔄 Review Flashcards
+
+    </button>
 
         </div>
 
