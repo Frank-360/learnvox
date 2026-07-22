@@ -306,11 +306,7 @@ def summary():
 
         "upgrade": True,
 
-        "daily_complete": (
-            user.get("plan") == "free"
-            and user.get("quick_learn_used", 0) >= 2
-            and user.get("deep_dive_used", 0) >= 1
-        ),
+       "daily_complete": user.get("plan") == "free",
 
         "quick_learn_used": user.get("quick_learn_used", 0),
 
