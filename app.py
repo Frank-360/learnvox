@@ -13,7 +13,8 @@ from flask import (
     render_template,
     request,
     session,
-    jsonify
+    jsonify,
+    redirect
 )
 
 from utils.pdf_reader import extract_text
@@ -46,11 +47,45 @@ from utils.paystack import (
     verify_payment
 )
 
-
+from utils.classroom_engine import (
+    StudyRoom,
+    ClassroomEngine,
+    Learner
+)
 
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "learnvox-secret-key")
+
+
+# ======================================
+# STUDY ROOMS (MVP)
+# ======================================
+
+from utils.teacher_ai import TeacherAI
+from utils.classroom_session import ClassroomSession
+
+rooms = {}
+sessions = {}
+
+default_room = StudyRoom(
+    room_id="LV-001",
+    title="Introduction to AI",
+    host_id="frank"
+)
+
+room_engine = ClassroomEngine(default_room)
+
+teacher = TeacherAI()
+
+class_session = ClassroomSession(
+    room=default_room,
+    teacher=teacher
+)
+
+rooms[default_room.room_id] = room_engine
+sessions[default_room.room_id] = class_session
+
 
 UPLOAD_FOLDER = "static/uploads"
 AUDIO_FOLDER = "static/audio"
@@ -70,6 +105,108 @@ def home():
     return render_template("index.html")
 
 
+# =====================================================
+# STUDY ROOM
+# =====================================================
+
+@app.route("/study-room")
+def study_room_page():
+
+    print("USER_NAME:", session.get("USER_NAME"))
+    print("EMAIL:", session.get("EMAIL"))
+    print("FILE_NAME:", session.get("FILE_NAME"))
+
+    if not session.get("USER_NAME"):
+        return redirect("/")
+
+    engine = rooms["LV-001"]
+    class_session = sessions["LV-001"]
+
+    if not session.get("ROOM_USER_ID"):
+
+        learner = Learner(
+            id=str(len(engine.room.learners) + 1),
+            name=session["USER_NAME"]
+        )
+
+        engine.join(learner)
+
+        session["ROOM_USER_ID"] = learner.id
+        session["ROOM_USER_NAME"] = learner.name
+
+    # Always determine what the teacher should say
+    teacher_message = class_session.teacher.get_current_message(
+        class_session
+    )
+
+    return render_template(
+        "study_room.html",
+        room=class_session.room,
+        class_session=class_session,
+        teacher_message=teacher_message
+    )
+# =====================================================
+# JOIN STUDY ROOM
+# =====================================================
+
+@app.route("/join-room", methods=["POST"])
+def join_room():
+
+    room_engine = rooms["LV-001"]
+
+    # Already joined?
+    if session.get("ROOM_USER_ID"):
+
+        return study_room_page()
+
+    # Get user's LearnVox name
+    name = session.get("USER_NAME")
+
+    if not name:
+
+        return "User session not found.", 400
+
+    learner = Learner(
+
+        id=str(len(room_engine.room.learners) + 1),
+
+        name=name
+
+    )
+
+    room_engine.join(learner)
+
+    session["ROOM_USER_ID"] = learner.id
+    session["ROOM_USER_NAME"] = learner.name
+
+    return study_room_page()
+
+
+# =====================================================
+# I'M READY
+# =====================================================
+
+@app.route("/ready", methods=["POST"])
+def ready():
+
+    learner_id = session.get("ROOM_USER_ID")
+
+    if learner_id:
+
+        engine = rooms["LV-001"]
+        class_session = sessions["LV-001"]
+
+        engine.mark_ready(learner_id)
+
+        # Automatically start the class
+        if engine.everyone_ready():
+
+            class_session.teacher.start_class(
+                class_session,
+                engine
+            )
+
+    return redirect("/study-room")
 # =====================================================
 # UPLOAD DOCUMENT
 # =====================================================
@@ -120,8 +257,8 @@ def upload():
     start_time = time.time()
 
     # -------------------------
-    # Extract PDF
-    # -------------------------
+# Extract PDF
+# -------------------------
 
     text = extract_text(filepath)
 
@@ -131,15 +268,24 @@ def upload():
         <h2>Document Not Readable</h2>
 
         <p>
-
         This PDF appears to contain scanned images rather than selectable text.
 
         OCR support is coming soon.
 
         Please upload a text-based PDF.
-
         </p>
         """
+
+    # -------------------------
+    # Prepare Study Room Lesson
+    # -------------------------
+
+    class_session = sessions["LV-001"]
+
+    class_session.teacher.prepare_lesson(
+        class_session,
+        text
+    )
 
     print("TEXT LENGTH:", len(text))
     print("Extraction Time:", time.time() - start_time)

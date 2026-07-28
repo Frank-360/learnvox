@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>{{ room.title }}</title>
+
+    <style>
+
+        body{
+            font-family:Arial,sans-serif;
+            background:#f5f7fb;
+            max-width:950px;
+            margin:auto;
+            padding:40px;
+        }
+
+        h1{
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:white;
+            border-radius:18px;
+            padding:30px;
+            margin-bottom:25px;
+            box-shadow:0 12px 30px rgba(0,0,0,.08);
+        }
+
+        .teacher{
+            border-left:6px solid #2563eb;
+        }
+
+        .teacher h2{
+            margin-top:0;
+            color:#2563eb;
+        }
+
+        .joined{
+            background:#ecfdf3;
+            color:#065f46;
+            border-radius:12px;
+            padding:18px;
+        }
+
+        button{
+            padding:12px 22px;
+            font-size:15px;
+            cursor:pointer;
+            border:none;
+            border-radius:8px;
+            background:#2563eb;
+            color:white;
+        }
+
+        button:hover{
+            background:#1d4ed8;
+        }
+
+        ul{
+            list-style:none;
+            padding:0;
+            margin:0;
+        }
+
+        li{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:14px 0;
+            border-bottom:1px solid #eee;
+        }
+
+        .me{
+            color:#2563eb;
+            font-weight:bold;
+        }
+
+        .status-ready{
+            color:green;
+            font-weight:bold;
+        }
+
+        .status-waiting{
+            color:#999;
+        }
+
+        .count{
+            margin-top:20px;
+            color:#666;
+            font-weight:bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>
+
+📚 {{ room.title }}
+
+</h1>
+
+<!-- ========================================= -->
+<!-- AI TEACHER -->
+<!-- ========================================= -->
+
+<div class="card teacher">
+
+<h2>
+
+👨‍🏫 LearnVox Teacher
+
+</h2>
+
+<div class="teacher-message">
+
+    <p>{{ teacher_message }}</p>
+
+</div>
+
+<!-- ========================================= -->
+<!-- YOU PANEL -->
+<!-- ========================================= -->
+
+<div class="card">
+
+{% if session.get("ROOM_USER_ID") %}
+
+    {% set me = namespace(ready=False) %}
+
+    {% for learner in room.learners %}
+
+        {% if learner.id == session["ROOM_USER_ID"] %}
+
+            {% if learner.status.value == "ready" %}
+                {% set me.ready = True %}
+            {% endif %}
+
+        {% endif %}
+
+    {% endfor %}
+
+    <div class="joined">
+
+        {% if me.ready %}
+
+            <h3>✅ You're Ready</h3>
+
+            <p>
+
+            Great!
+
+            We'll begin once everyone is ready.
+
+            </p>
+
+        {% else %}
+
+            <h3>
+
+            👋 Welcome back,
+
+            {{ session["ROOM_USER_NAME"] }}
+
+            </h3>
+
+            <p>
+
+            You're inside today's classroom.
+
+            Click below whenever you're ready to begin.
+
+            </p>
+
+            <form action="/ready" method="POST">
+
+                <button type="submit">
+
+                    🚀 I'm Ready
+
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+</div>
+
+<!-- ========================================= -->
+<!-- LEARNERS -->
+<!-- ========================================= -->
+
+<div class="card">
+
+<h2>
+
+👥 Learners
+
+</h2>
+
+<ul>
+
+{% for learner in room.learners %}
+
+<li>
+
+<div>
+
+🟢
+
+{% if learner.name == session.get("ROOM_USER_NAME") %}
+
+<span class="me">
+
+{{ learner.name }} (You)
+
+</span>
+
+{% else %}
+
+{{ learner.name }}
+
+{% endif %}
+
+</div>
+
+<div>
+
+{% if learner.status.value == "ready" %}
+
+<span class="status-ready">
+
+✅ Ready
+
+</span>
+
+{% else %}
+
+<span class="status-waiting">
+
+⏳ Waiting
+
+</span>
+
+{% endif %}
+
+</div>
+
+</li>
+
+{% else %}
+
+<li>
+
+No learners have joined yet.
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+<p class="count">
+
+Ready:
+
+{{ room.learners
+|selectattr("status.value","equalto","ready")
+|list
+|length }}
+
+/
+
+{{ room.learners|length }}
+
+</p>
+
+</div>
+
+</body>
+
+</html>

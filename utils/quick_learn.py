@@ -1,7 +1,9 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import time
 import traceback
+
 
 
 load_dotenv()
@@ -90,6 +92,8 @@ def generate_quick_learn(text):
 
     try:
 
+        start = time.time()
+
         response = client.chat.completions.create(
 
             model="gpt-4.1-mini",
@@ -110,7 +114,7 @@ def generate_quick_learn(text):
 
         )
 
-        print("OPENAI RESPONSE RECEIVED")
+        print(f"OPENAI RESPONSE RECEIVED in {time.time() - start:.2f} seconds")
 
         return response.choices[0].message.content
 
