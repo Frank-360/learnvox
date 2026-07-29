@@ -1,11 +1,24 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
 class LessonBlock:
     id: int
     title: str
-    content: str
+
+    # teaching | checkpoint | practice | summary
+    block_type: str
+
+    # Normal teaching content
+    content: str = ""
+
+    # Used for checkpoints and practice
+    question: Optional[str] = None
+    expected_answer: Optional[str] = None
+    teacher_feedback: Optional[str] = None
+
+    # Temporary (for backward compatibility)
     requires_response: bool = False
 
 

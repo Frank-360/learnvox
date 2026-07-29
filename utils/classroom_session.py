@@ -1,9 +1,13 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
 
+from utils.teacher_state import TeacherState
 from utils.classroom_engine import StudyRoom
 from utils.teacher_ai import TeacherAI
+
+from utils.lesson_engine import LessonEngine, LessonBlock
+
+from utils.classroom_engine import ClassroomEngine
 
 
 @dataclass
@@ -13,11 +17,31 @@ class ClassroomSession:
 
     teacher: TeacherAI
 
+    classroom_engine: ClassroomEngine | None = None
+
     started_at: datetime = field(default_factory=datetime.utcnow)
+
+    # -------------------------------------
+    # CLASS STATUS
+    # -------------------------------------
 
     lesson_started: bool = False
 
-    active_block: int = 0
+    completed: bool = False
+
+    teacher_state: TeacherState = TeacherState.WELCOME
+
+    # -------------------------------------
+    # LESSON
+    # -------------------------------------
+
+    lesson_engine: LessonEngine | None = None
+
+    active_question: LessonBlock | None = None
+
+    # -------------------------------------
+    # QUESTIONS
+    # -------------------------------------
 
     active_question = None
 
@@ -25,25 +49,36 @@ class ClassroomSession:
 
     learner_answers: dict = field(default_factory=dict)
 
+    # -------------------------------------
+    # DISCUSSION
+    # -------------------------------------
+
     discussion: list = field(default_factory=list)
 
-    completed: bool = False
-
-    lesson_engine = None
+    # -------------------------------------
+    # START CLASS
+    # -------------------------------------
 
     def start(self):
 
         self.lesson_started = True
 
-        self.room.add_event("Class session started.")
+        self.teacher_state = TeacherState.TEACHING
+
+        self.room.add_event(
+            "Class session started."
+        )
 
 
     def finish(self):
 
         self.completed = True
 
-        self.room.addself.current_question_event("Class session finished.")
+        self.teacher_state = TeacherState.FINISHED
 
+        self.room.add_event(
+            "Class session finished."
+        )
 
 
     def add_discussion(self, learner_name, message):

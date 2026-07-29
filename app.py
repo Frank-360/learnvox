@@ -62,7 +62,7 @@ app.secret_key = os.getenv("SECRET_KEY", "learnvox-secret-key")
 # STUDY ROOMS (MVP)
 # ======================================
 
-from utils.teacher_ai import TeacherAI
+from utils.teacher_ai import TeacherAI, TeachingDecision
 from utils.classroom_session import ClassroomSession
 
 rooms = {}
@@ -80,11 +80,14 @@ teacher = TeacherAI()
 
 class_session = ClassroomSession(
     room=default_room,
-    teacher=teacher
+    teacher=teacher,
+    classroom_engine=room_engine
 )
+
 
 rooms[default_room.room_id] = room_engine
 sessions[default_room.room_id] = class_session
+
 
 
 UPLOAD_FOLDER = "static/uploads"
@@ -139,12 +142,131 @@ def study_room_page():
         class_session
     )
 
+    show_next_button = (
+        class_session.lesson_started
+        and class_session.lesson_engine is not None
+        and not class_session.lesson_engine.is_finished()
+    )
+
     return render_template(
         "study_room.html",
         room=class_session.room,
         class_session=class_session,
-        teacher_message=teacher_message
+        teacher_message=teacher_message,
+        show_next_button=show_next_button
     )
+
+# =====================================
+# SUBMIT ANSWER
+# =====================================
+
+@app.route("/study-room/answer", methods=["POST"])
+def submit_answer():
+
+    print(">>> submit_answer route reached <<<")
+
+    if not session.get("ROOM_USER_ID"):
+        return jsonify({
+            "success": False,
+            "message": "Learner not found."
+        })
+
+    answer = request.form.get("answer", "").strip()
+
+    if not answer:
+        return jsonify({
+            "success": False,
+            "message": "Please enter an answer."
+        })
+
+    engine = rooms["LV-001"]
+    class_session = sessions["LV-001"]
+
+    learner = next(
+        (
+            l for l in engine.room.learners
+            if l.id == session["ROOM_USER_ID"]
+        ),
+        None
+    )
+
+    if learner is None:
+        return jsonify({
+            "success": False,
+            "message": "Learner not found."
+        })
+
+   # Record the learner's answer in the classroom
+    learner = engine.submit_answer(
+        learner.id,
+        answer
+    )
+
+        # ==========================================
+    # Evaluate this learner's answer
+    # ==========================================
+
+    result = class_session.teacher.evaluate_answer(
+        class_session,
+        learner,
+        answer
+    )
+
+    # Save learner's evaluation
+    learner.last_score = result["score"]
+    learner.last_feedback = result["feedback"]
+    learner.evaluation_complete = True
+    learner.mastery_score = result["score"]
+
+    # ==========================================
+    # Wait for the rest of the class
+    # ==========================================
+
+    if engine.everyone_answered():
+
+        # Teacher decides what to do with the whole class
+        decision = class_session.teacher.decide_next_action(
+            class_session
+        )
+
+        if decision["action"] == TeachingDecision.CONTINUE:
+
+            class_session.teacher.next_block(class_session)
+
+        elif decision["action"] == TeachingDecision.REVIEW:
+
+            # We'll implement this next
+            pass
+
+        elif decision["action"] == TeachingDecision.RETEACH:
+
+            # We'll implement this next
+            pass
+
+    else:
+
+        # Other learners haven't answered yet
+        decision = {
+            "action": "waiting",
+            "reason": "Waiting for the remaining learners to answer."
+        }
+
+    # ==========================================
+    # Send response back to this learner
+    # ==========================================
+
+    return jsonify({
+            "success": True,
+            "correct": result["correct"],
+            "score": result["score"],
+            "feedback": result["feedback"],
+            "decision": (
+                decision["action"].value
+                if isinstance(decision["action"], TeachingDecision)
+                else decision["action"]
+            ),
+            "reason": decision["reason"]
+        })
 # =====================================================
 # JOIN STUDY ROOM
 # =====================================================
@@ -207,6 +329,41 @@ def ready():
             )
 
     return redirect("/study-room")
+
+
+# =====================================
+# NEXT LESSON BLOCK
+# =====================================
+
+@app.route("/study-room/next", methods=["POST"])
+def next_lesson():
+
+    class_session = sessions["LV-001"]
+
+    class_session.teacher.next_block(
+        class_session
+    )
+
+    return redirect("/study-room")
+
+
+@app.route("/study-room/question", methods=["POST"])
+def study_room_question():
+
+    class_session = sessions["LV-001"]
+
+    question = request.form["question"]
+
+    class_session.teacher.answer_student_question(
+        class_session,
+        question
+    )
+
+    return redirect("/study-room")
+
+
+
+
 # =====================================================
 # UPLOAD DOCUMENT
 # =====================================================
@@ -763,6 +920,25 @@ def verify_payment_route():
     </p>
     """
 
+
+# =====================================================
+# AI CLASSROOM
+# =====================================================
+
+@app.route("/classroom")
+def classroom_home():
+    return render_template("classroom_home.html")
+
+
+@app.route("/classroom/create")
+def create_classroom():
+    return render_template("create_classroom.html")
+
+
+@app.route("/join")
+def join_classroom():
+    return render_template("join_classroom.html")
+
 # =====================================================
 # RUN APP
 # =====================================================
@@ -773,6 +949,4 @@ print(app.url_map)
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
-
-
 

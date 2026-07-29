@@ -39,8 +39,8 @@ class DeliveryMode(Enum):
 class LearnerStatus(Enum):
     JOINED = "joined"
     READY = "ready"
+    ANSWERING = "answering"
     DISCONNECTED = "disconnected"
-
 
 class ClassroomNotReadyError(Exception):
     """Raised when someone tries to start a class before everyone is ready."""
@@ -55,15 +55,43 @@ class ClassroomNotReadyError(Exception):
 class Learner:
     id: str
     name: str
+
     delivery_mode: DeliveryMode = DeliveryMode.TEXT
     status: LearnerStatus = LearnerStatus.JOINED
+
     participation_score: int = 0
     mastery_score: float = 0.0
 
+    # -------------------------------
+    # Current checkpoint state
+    # -------------------------------
+
+    current_answer: str = ""
+
+    has_answered: bool = False
+
+    answer_time: datetime | None = None
+
+    last_score: float = 0.0
+
+    last_feedback: str = ""
+
+    evaluation_complete: bool = False
+
+    # -------------------------------
+    # Live classroom state
+    # -------------------------------
+
+    hand_raised: bool = False
+
+    connected: bool = True
 
 # =====================================
 # STUDY ROOM
 # =====================================
+
+from dataclasses import dataclass, field
+
 
 @dataclass
 class StudyRoom:
@@ -135,4 +163,105 @@ class ClassroomEngine:
                 "Not everyone is ready."
             )
 
-        self.room.status = RoomStatus.TEACHING
+    def submit_answer(self, learner_id: str, answer: str):
+
+        for learner in self.room.learners:
+
+            if learner.id == learner_id:
+
+                learner.current_answer = answer
+                learner.has_answered = True
+                learner.answer_time = datetime.utcnow()
+
+                learner.status = LearnerStatus.ANSWERING
+
+                self.room.add_event(
+                    f"{learner.name} submitted an answer."
+                )
+
+                return learner
+
+        return None
+
+
+    def answer_count(self):
+
+        return sum(
+            learner.has_answered
+            for learner in self.room.learners
+        )
+
+    def waiting_learners(self):
+
+        return [
+            learner
+            for learner in self.room.learners
+            if not learner.has_answered
+        ]
+
+    def everyone_answered(self):
+
+        print("===== CLASSROOM STATUS =====")
+
+        for learner in self.room.learners:
+
+            print(
+                learner.name,
+                "| answered:",
+                learner.has_answered
+            )
+
+        print("============================")
+
+        return all(
+                learner.has_answered
+                for learner in self.room.learners
+            )
+
+    def reset_answers(self):
+
+        for learner in self.room.learners:
+
+            learner.current_answer = ""
+            learner.has_answered = False
+            learner.answer_time = None
+
+            learner.last_feedback = ""
+            learner.last_score = 0.0
+
+            learner.evaluation_complete = False
+
+            learner.status = LearnerStatus.READY
+
+    def average_score(self):
+
+        evaluated = [
+            learner.last_score
+            for learner in self.room.learners
+            if learner.evaluation_complete
+        ]
+
+        if not evaluated:
+            return 0
+
+        return round(sum(evaluated) / len(evaluated), 1)
+
+    def evaluated_count(self):
+
+        return sum(
+            learner.evaluation_complete
+            for learner in self.room.learners
+
+        )
+
+    def struggling_learners(self, threshold=60):
+
+        return [
+            learner
+            for learner in self.room.learners
+            if learner.evaluation_complete
+            and learner.last_score < threshold
+        ]
+
+
+    

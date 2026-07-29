@@ -20,37 +20,42 @@
         }
 
         .card{
-            background:white;
+            background:#fff;
             border-radius:18px;
             padding:30px;
             margin-bottom:25px;
             box-shadow:0 12px 30px rgba(0,0,0,.08);
         }
 
-        .teacher{
+        .teacher-card{
+            background:#fff;
             border-left:6px solid #2563eb;
+            border-radius:18px;
+            padding:30px;
+            margin-bottom:25px;
+            box-shadow:0 12px 30px rgba(0,0,0,.08);
         }
 
-        .teacher h2{
-            margin-top:0;
+        .teacher-card h3{
             color:#2563eb;
+            margin-top:0;
         }
 
         .joined{
             background:#ecfdf3;
             color:#065f46;
             border-radius:12px;
-            padding:18px;
+            padding:20px;
         }
 
         button{
             padding:12px 22px;
-            font-size:15px;
-            cursor:pointer;
             border:none;
             border-radius:8px;
+            cursor:pointer;
             background:#2563eb;
-            color:white;
+            color:#fff;
+            font-size:15px;
         }
 
         button:hover{
@@ -59,8 +64,8 @@
 
         ul{
             list-style:none;
-            padding:0;
             margin:0;
+            padding:0;
         }
 
         li{
@@ -87,8 +92,8 @@
 
         .count{
             margin-top:20px;
-            color:#666;
             font-weight:bold;
+            color:#666;
         }
 
     </style>
@@ -97,51 +102,100 @@
 
 <body>
 
-<h1>
-
-📚 {{ room.title }}
-
-</h1>
+<h1>📚 {{ room.title }}</h1>
 
 <!-- ========================================= -->
-<!-- AI TEACHER -->
+<!-- FIND CURRENT LEARNER -->
 <!-- ========================================= -->
 
-<div class="card teacher">
-
-<h2>
-
-👨‍🏫 LearnVox Teacher
-
-</h2>
-
-<div class="teacher-message">
-
-    <p>{{ teacher_message }}</p>
-
-</div>
-
-<!-- ========================================= -->
-<!-- YOU PANEL -->
-<!-- ========================================= -->
-
-<div class="card">
+{% set me = namespace(ready=False) %}
 
 {% if session.get("ROOM_USER_ID") %}
 
-    {% set me = namespace(ready=False) %}
-
     {% for learner in room.learners %}
 
-        {% if learner.id == session["ROOM_USER_ID"] %}
+        {% if learner.id == session["ROOM_USER_ID"] and learner.status.value == "ready" %}
 
-            {% if learner.status.value == "ready" %}
-                {% set me.ready = True %}
-            {% endif %}
+            {% set me.ready = True %}
 
         {% endif %}
 
     {% endfor %}
+
+{% endif %}
+
+<!-- ========================================= -->
+<!-- TEACHER -->
+<!-- ========================================= -->
+
+<div class="teacher-card">
+
+    <h3>👨‍🏫 LearnVox Teacher</h3>
+
+    <p>{{ teacher_message }}</p>
+
+    {% if class_session.lesson_engine %}
+
+        {% set block = class_session.lesson_engine.current_block() %}
+
+        {% if block and block.block_type in ["checkpoint", "practice"] %}
+
+        <div class="teacher-actions">
+
+            <form id="answerForm"action="/study-room/answer" method="POST">
+                <textarea
+                    id="learnerAnswer"
+                    name="answer"
+                    placeholder="Type your answer here..."
+                    rows="5"
+                    required
+                ></textarea>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Submit Answer
+                </button>
+
+            </form>
+
+            <div id="teacherFeedback"></div>
+
+        </div>
+
+      {% elif show_next_button %}
+
+<div class="teacher-actions">
+
+    <form id="autoNext" action="/study-room/next" method="POST">
+    <button type="submit" hidden></button>
+    </form>
+
+    <p class="teacher-status">
+        👨‍🏫 The teacher is preparing the next part of the lesson...
+    </p>
+
+        </div>
+
+        <script>
+        setTimeout(function () {
+            document.getElementById("autoNext").submit();
+        }, 8000);
+        </script>
+
+        {% endif %}
+
+        {% endif %}
+
+</div>
+<!-- ========================================= -->
+<!-- READY PANEL -->
+<!-- ========================================= -->
+
+{% if session.get("ROOM_USER_ID") and not class_session.lesson_started %}
+
+<div class="card">
 
     <div class="joined">
 
@@ -151,9 +205,7 @@
 
             <p>
 
-            Great!
-
-            We'll begin once everyone is ready.
+                Great! We'll begin once everyone is ready.
 
             </p>
 
@@ -161,17 +213,17 @@
 
             <h3>
 
-            👋 Welcome back,
+                👋 Welcome back,
 
-            {{ session["ROOM_USER_NAME"] }}
+                {{ session["ROOM_USER_NAME"] }}
 
             </h3>
 
             <p>
 
-            You're inside today's classroom.
+                You're inside today's classroom.
 
-            Click below whenever you're ready to begin.
+                Click below whenever you're ready to begin.
 
             </p>
 
@@ -189,9 +241,9 @@
 
     </div>
 
-{% endif %}
-
 </div>
+
+{% endif %}
 
 <!-- ========================================= -->
 <!-- LEARNERS -->
@@ -199,90 +251,170 @@
 
 <div class="card">
 
-<h2>
+    <h2>👥 Learners</h2>
 
-👥 Learners
+    <ul>
 
-</h2>
+        {% for learner in room.learners %}
 
-<ul>
+        <li>
 
-{% for learner in room.learners %}
+            <div>
 
-<li>
+                🟢
 
-<div>
+                {% if learner.name == session.get("ROOM_USER_NAME") %}
 
-🟢
+                    <span class="me">
 
-{% if learner.name == session.get("ROOM_USER_NAME") %}
+                        {{ learner.name }} (You)
 
-<span class="me">
+                    </span>
 
-{{ learner.name }} (You)
+                {% else %}
 
-</span>
+                    {{ learner.name }}
 
-{% else %}
+                {% endif %}
 
-{{ learner.name }}
+            </div>
 
-{% endif %}
+            <div>
 
-</div>
+                {% if learner.status.value == "ready" %}
 
-<div>
+                    <span class="status-ready">
 
-{% if learner.status.value == "ready" %}
+                        ✅ Ready
 
-<span class="status-ready">
+                    </span>
 
-✅ Ready
+                {% else %}
 
-</span>
+                    <span class="status-waiting">
 
-{% else %}
+                        ⏳ Waiting
 
-<span class="status-waiting">
+                    </span>
 
-⏳ Waiting
+                {% endif %}
 
-</span>
+            </div>
 
-{% endif %}
+        </li>
 
-</div>
+        {% else %}
 
-</li>
+        <li>
 
-{% else %}
+            No learners have joined yet.
 
-<li>
+        </li>
 
-No learners have joined yet.
+        {% endfor %}
 
-</li>
+    </ul>
 
-{% endfor %}
+    <p class="count">
 
-</ul>
+        Ready:
 
-<p class="count">
+        {{ room.learners
+            |selectattr("status.value","equalto","ready")
+            |list
+            |length }}
 
-Ready:
+        /
 
-{{ room.learners
-|selectattr("status.value","equalto","ready")
-|list
-|length }}
+        {{ room.learners|length }}
 
-/
-
-{{ room.learners|length }}
-
-</p>
+    </p>
 
 </div>
+    <script>
+
+const answerForm = document.getElementById("answerForm");
+
+if (answerForm) {
+
+    answerForm.addEventListener("submit", async function(e){
+
+        e.preventDefault();
+
+        const answer = document.getElementById("learnerAnswer").value;
+
+        const formData = new FormData();
+        formData.append("answer", answer);
+
+        const response = await fetch("/study-room/answer", {
+
+            method: "POST",
+            body: formData
+
+        });
+
+        const data = await response.json();
+
+        const feedback = document.getElementById("teacherFeedback");
+
+        if (data.success) {
+
+    document.getElementById("answerForm").style.display = "none";
+
+    feedback.innerHTML = `
+        <div class="teacher-feedback">
+            <p><strong>Teacher:</strong> ${data.feedback}</p>
+
+            <p style="margin-top:15px;">
+                <strong>Decision:</strong> ${data.decision}
+            </p>
+
+            <p>${data.reason}</p>
+        </div>
+    `;
+
+        if (data.decision === "continue") {
+
+            setTimeout(() => {
+
+                window.location.replace("/study-room");
+
+            }, 3000);
+
+        }
+
+        else if (data.decision === "review") {
+
+            // We'll implement this next.
+            console.log("Teacher wants to review.");
+
+        }
+
+        else if (data.decision === "reteach") {
+
+            // We'll implement this next.
+            console.log("Teacher wants to reteach.");
+
+        }
+
+}
+        
+        else{
+
+            feedback.innerHTML = `
+                <div class="teacher-feedback error">
+                    ${data.message}
+                </div>
+            `;
+
+        }
+
+    });
+
+}
+
+</script>
+
 
 </body>
 
