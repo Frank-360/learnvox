@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ session.room.title }} | LearnVox</title>
+
+    <style>
+
+        body{
+            font-family:Arial,sans-serif;
+            background:#f5f7fb;
+            max-width:900px;
+            margin:auto;
+            padding:40px;
+        }
+
+        .classroom-card{
+            background:#fff;
+            border-radius:12px;
+            padding:35px;
+            box-shadow:0 10px 25px rgba(0,0,0,.08);
+        }
+
+        h1{
+            margin-bottom:25px;
+        }
+
+        .teacher-header{
+            font-size:26px;
+            font-weight:bold;
+            color:#2563eb;
+            margin-bottom:20px;
+        }
+
+        .teacher-message{
+            background:#f8fafc;
+            border-left:5px solid #2563eb;
+            padding:20px;
+            border-radius:8px;
+            white-space:pre-line;
+            line-height:1.8;
+            margin-bottom:30px;
+        }
+
+        .next-btn{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:14px 28px;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        .next-btn:hover{
+            background:#1d4ed8;
+        }
+
+    </style>
+
+</head>
+
+<body data-waiting="{{ waiting|tojson }}">
+
+<div class="classroom-card">
+
+    <h1>{{ session.room.title }}</h1>
+
+    <div class="teacher-header">
+        🎓 {{ session.teacher.name }}
+    </div>
+
+    <p>Host: {{ is_host }}</p>
+    
+    <div class="teacher-message">
+
+    {% if session.waiting_for_answers and session.active_question %}
+
+        {{ session.active_question.question }}
+
+    {% else %}
+
+        {{ session.current_message }}
+
+    {% endif %}
+
+</div>
+
+{% if session.waiting_for_answers %}
+
+    {% if not session.has_answered(learner_name) %}
+
+        <div class="answer-card">
+
+            <h3>Your Answer</h3>
+
+            <form action="{{ url_for('submit_classroom_answer', room_code=room_code) }}"
+                  method="POST">
+
+                <textarea
+                    name="answer"
+                    rows="5"
+                    placeholder="Type your answer here..."
+                    required
+                ></textarea>
+
+                <button type="submit">
+                    Submit Answer
+                </button>
+
+            </form>
+
+        </div>
+
+    {% else %}
+
+        <div class="waiting-card">
+
+            <h3>✅ Your answer has been submitted.</h3>
+
+            <p>
+                Waiting for LearnVox to evaluate the class...
+            </p>
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+<script>
+
+const waiting = document.body.dataset.waiting === "true";
+
+function advanceLesson() {
+
+    console.log("Calling /next...");
+
+    fetch("/classroom/{{ room_code }}/next", {
+        method: "POST"
+    })
+    .then(() => location.reload())
+    .catch(console.error);
+
+}
+
+if (!waiting) {
+
+    console.log("Timer started");
+
+    setTimeout(advanceLesson, 10000);
+
+}
+
+</script>
+</body>
+
+</html>

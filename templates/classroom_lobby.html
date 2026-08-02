@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ session.room.title }}</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial, sans-serif;
+            background:#f5f7fb;
+            color:#333;
+        }
+
+        .container{
+            max-width:900px;
+            margin:40px auto;
+            padding:20px;
+        }
+
+        h1{
+            margin-bottom:10px;
+        }
+
+        .subtitle{
+            color:#666;
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:#fff;
+            border-radius:12px;
+            padding:25px;
+            margin-bottom:25px;
+            box-shadow:0 5px 18px rgba(0,0,0,.08);
+        }
+
+        .card h2{
+            margin-bottom:20px;
+        }
+
+        .room-code{
+            font-size:32px;
+            font-weight:bold;
+            color:#2d6cdf;
+            margin:15px 0;
+        }
+
+        .status{
+            display:inline-block;
+            padding:8px 14px;
+            border-radius:30px;
+            background:#eaf7ee;
+            color:#1d7a35;
+            font-weight:bold;
+        }
+
+        ul{
+            list-style:none;
+            margin-top:15px;
+        }
+
+        li{
+            padding:12px 0;
+            border-bottom:1px solid #eee;
+        }
+
+        button{
+            padding:14px 22px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+            margin-right:10px;
+            margin-top:15px;
+        }
+
+        .primary{
+            background:#2d6cdf;
+            color:#fff;
+        }
+
+        .secondary{
+            background:#eceff5;
+        }
+
+        .waiting{
+            margin-top:20px;
+            color:#777;
+            font-style:italic;
+        }
+
+        .invite-input{
+            width:100%;
+            padding:12px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            margin-bottom:12px;
+            font-size:14px;
+            background:#f8f9fa;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>{{ session.room.title }}</h1>
+
+    <p class="subtitle">
+        Welcome to your AI Classroom Lobby
+    </p>
+
+
+    <!-- ROOM -->
+
+    <div class="card">
+
+        <h2>Classroom</h2>
+
+        <p><strong>Room Code</strong></p>
+
+        <div class="invite-section">
+
+    <input
+        type="text"
+        id="inviteLink"
+        class="invite-input"
+        value="{{ invite_link }}"
+        readonly
+    >
+
+    <button class="secondary" onclick="copyInviteLink()">
+        📋 Copy Invite Link
+    </button>
+
+    <p class="room-code">
+        Room Code: <strong>{{ session.room.room_id }}</strong>
+    </p>
+
+</div>
+
+
+    <!-- AI TEACHER -->
+
+    <div class="card">
+
+        <h2>AI Teacher</h2>
+
+        {% if session.classroom_state.value == "ready" %}
+
+            <span class="status">
+
+                ✅ Lesson Ready
+
+            </span>
+
+        {% else %}
+
+            <span class="status">
+
+                🤖 Preparing Lesson...
+
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- PARTICIPANTS -->
+
+<div class="card">
+
+    <h2>
+    Participants ({{ session.room.learners|length }})
+</h2>
+
+<ul>
+
+    {% for learner in session.room.learners %}
+
+        <li>
+
+            {% if learner.id == session.room.host_id %}
+                👑
+            {% elif learner.status == LearnerStatus.READY %}
+                ✅
+            {% else %}
+                ⏳
+            {% endif %}
+
+            {{ learner.name }}
+
+            {% if learner.id == session.room.host_id %}
+                (Host)
+            {% endif %}
+
+        </li>
+
+    {% endfor %}
+
+</ul>
+
+    {% if session.room.learners|length == 0 %}
+
+        <p class="waiting">
+            Waiting for participants to join...
+        </p>
+
+    {% endif %}
+
+</div>
+
+    <!-- ACTIONS -->
+
+    <div class="card">
+
+        <form
+            action="{{ url_for('start_class', room_code=session.room.room_id) }}"
+            method="POST">
+
+            <button class="primary-btn">
+                ▶ Start Class
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function copyInviteLink() {
+    const input = document.getElementById("inviteLink");
+
+    navigator.clipboard.writeText(input.value)
+        .then(() => {
+            alert("Invite link copied!");
+        })
+        .catch(() => {
+            input.select();
+            document.execCommand("copy");
+            alert("Invite link copied!");
+        });
+}
+</script>
+
+</body>
+
+</html>

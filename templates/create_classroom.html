@@ -13,5 +13,47 @@
     <a href="/classroom">← Back</a>
 </p>
 
+<h1>Create AI Classroom</h1>
+
+<form action="/classroom/create" method="POST" enctype="multipart/form-data">
+
+    <label>Your Name</label>
+        <input
+            type="text"
+            name="host_name"
+            placeholder="e.g. Frank"
+            required>
+
+    <label>Classroom Title</label>
+    <input
+        type="text"
+        name="title"
+        placeholder="e.g. Introduction to Artificial Intelligence"
+        required>
+
+    <label>Upload Lesson (PDF)</label>
+    <input
+        type="file"
+        name="lesson"
+        accept=".pdf"
+        required>
+
+    <label>Duration</label>
+
+    <select name="duration">
+        <option value="30">30 Minutes</option>
+        <option value="60" selected>60 Minutes</option>
+        <option value="90">90 Minutes</option>
+    </select>
+
+    <button type="submit">
+        Create Classroom
+    </button>
+
+</form>
+
 </body>
 </html>
+
+
+

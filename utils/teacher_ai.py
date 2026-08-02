@@ -4,13 +4,15 @@ from utils.lesson_engine import LessonEngine
 
 from utils.teacher_state import TeacherState
 
-from utils.answer_evaluator import evaluate_answer
+from utils.answer_evaluator import evaluate_answer, evaluate_class_answers
 
 from utils.classroom_engine import (
     ClassroomNotReadyError
 )
 
 from enum import Enum
+
+from datetime import datetime
 
 
 class TeachingDecision(Enum):
@@ -21,12 +23,25 @@ class TeachingDecision(Enum):
 
 class TeacherAI:
 
-    def __init__(self, name="LearnVox Teacher"):
+    def __init__(self, name="LearnVox"):
         self.name = name
 
     # -------------------------------------------------
     # WELCOME
     # -------------------------------------------------
+
+    def greeting(self):
+
+        hour = datetime.now().hour
+
+        if hour < 12:
+            return "Good morning"
+
+        elif hour < 17:
+            return "Good afternoon"
+
+        return "Good evening"
+
 
     def welcome(self, room):
 
@@ -34,26 +49,29 @@ class TeacherAI:
 
         if learner_count == 0:
             return (
-                "Welcome! I'm preparing today's classroom. "
-                "Once learners arrive, we'll begin today's lesson together."
+                f"Good day! I'm {self.name}.\n\n"
+                "I'm getting today's lesson ready.\n"
+                "Once everyone has arrived and taken a seat, we'll begin."
             )
 
         elif learner_count == 1:
             return (
-                f"Welcome back, {room.learners[0].name}. "
-                "I'm glad you're here. We'll wait a little longer for the remaining learners."
+                f"Welcome, {room.learners[0].name}!\n\n"
+                "I'm glad you're here.\n"
+                "We'll begin as soon as the rest of the class is ready."
             )
 
         elif learner_count < 5:
             return (
-                f"Wonderful! {learner_count} learners are now in the classroom. "
-                "Please get comfortable while everyone joins."
+                f"Welcome everyone!\n\n"
+                f"I can see {learner_count} learners are in the classroom.\n"
+                "Please take your seats and we'll begin shortly."
             )
 
         return (
-            f"Excellent! {learner_count} learners are ready. "
-            "We'll begin today's lesson very soon."
-        )
+                f"Excellent! All {learner_count} learners are here.\n\n"
+                "Everyone is seated, and we're ready to begin today's lesson."
+            )
 
     # -------------------------------------------------
     # CURRENT MESSAGE
@@ -87,14 +105,17 @@ class TeacherAI:
     # START CLASS
     # =====================================
 
+    
     def start_class(self, session, engine):
 
-        if not self.can_start(engine):
-            raise ClassroomNotReadyError(
-                "Not everyone is ready."
-            )
+    # TEMPORARILY DISABLED WHILE BUILDING THE TEACHING FLOW
+    # if not self.can_start(engine):
+    #     raise ClassroomNotReadyError(
+    #         "Not everyone is ready."
+    #     )
 
-        engine.start_class()
+        if engine is not None and len(session.room.learners) > 0:
+            engine.start_class()
 
         session.lesson_started = True
         session.teacher_state = TeacherState.TEACHING
@@ -104,8 +125,12 @@ class TeacherAI:
         )
 
         return (
-            "Welcome everyone! "
-            "Today's lesson is about to begin."
+            f"{self.greeting()} everyone!\n\n"
+            f"I'm {self.name}, and I'll be guiding today's lesson.\n\n"
+            f"Today we'll be learning:\n"
+            f"{session.room.title}\n\n"
+            "By the end of today's lesson, you'll have a solid understanding of this topic.\n\n"
+            "Let's begin!"
         )
 
     # =====================================
@@ -135,6 +160,7 @@ class TeacherAI:
 # TEACH
 # =====================================
 
+
     def teach(self, session):
 
         if session.lesson_engine is None:
@@ -154,12 +180,7 @@ class TeacherAI:
             f"Teacher taught: {block.title}"
         )
 
-        if block.block_type in ("checkpoint", "practice"):
-            return self.ask_question(session)
-
-        return block.content.strip()
-
-            # ---------------------------------
+        # ---------------------------------
         # QUESTION BLOCKS
         # ---------------------------------
 
@@ -170,8 +191,6 @@ class TeacherAI:
         # TEACHING BLOCKS
         # ---------------------------------
 
-        session.teacher_state = TeacherState.TEACHING
-
         return block.content.strip()
 
     # =====================================
@@ -180,10 +199,15 @@ class TeacherAI:
 
     def next_block(self, session):
 
+        print("NEXT BLOCK CALLED")
+        print("Current block index:", session.lesson_engine.current)
+
         if session.lesson_engine is None:
             return None
 
         session.lesson_engine.next()
+
+        print("New block index:", session.lesson_engine.current)
 
         return self.teach(session)
 
@@ -216,9 +240,9 @@ class TeacherAI:
 
         return block.question
 
-    # =====================================
-    # EVALUATE ANSWER
-    # =====================================
+# =====================================
+# EVALUATE ANSWER
+# =====================================
 
     def evaluate_answer(self, session, learner, answer):
 
@@ -248,8 +272,6 @@ class TeacherAI:
                 "feedback": "There is no question to answer right now."
             }
 
-        session.teacher_state = TeacherState.EVALUATING
-
         try:
 
             evaluation = evaluate_answer(
@@ -273,10 +295,6 @@ class TeacherAI:
                 "Please try again."
             )
 
-        session.waiting_for_answers = False
-
-        session.teacher_state = TeacherState.FEEDBACK
-
         session.room.add_event(
             f"{learner.name} answered: {answer}"
         )
@@ -286,6 +304,11 @@ class TeacherAI:
             "score": score,
             "feedback": feedback
         }
+
+
+    # =====================================
+    # DECIDE NEXT ACTION
+    # =====================================
 
     def decide_next_action(self, session):
 
@@ -317,3 +340,96 @@ class TeacherAI:
             "action": TeachingDecision.RETEACH,
             "reason": "The class needs this concept explained again."
         }
+
+
+    # =====================================
+    # EVALUATE CLASS
+    # =====================================
+
+    def evaluate_class(self, session):
+
+        print(">>> evaluate_class() called")
+
+        session.teacher_state = TeacherState.EVALUATING
+
+        learners = session.room.learners
+
+        if not learners:
+            return
+
+        # Reset previous evaluations
+        for learner in learners:
+
+            learner.last_score = 0
+            learner.last_feedback = ""
+            learner.evaluation_complete = False
+
+        # Evaluate every learner
+        # Collect all learner answers
+        learner_answers = []
+
+        for learner in learners:
+
+            learner_answers.append({
+                "name": learner.name,
+                "answer": learner.current_answer
+            })
+
+        block = session.lesson_engine.current_block()
+
+        evaluation = evaluate_class_answers(
+                block.question,
+                block.expected_answer,
+                learner_answers
+            )
+
+            # Save the evaluation for each learner
+        results = {
+                result["name"]: result
+                for result in evaluation["learners"]
+            }
+
+        for learner in learners:
+
+            result = results.get(learner.name)
+
+            if result is None:
+                continue
+
+            learner.last_score = result["score"]
+            learner.last_feedback = result["feedback"]
+            learner.evaluation_complete = True
+
+        decision = self.decide_next_action(session)
+
+        session.waiting_for_answers = False
+        session.teacher_state = TeacherState.FEEDBACK
+
+        action = decision["action"]
+
+        if action == TeachingDecision.CONTINUE:
+
+            session.teacher_feedback = (
+                "Excellent! Most of the class understood the concept. "
+                "Let's continue."
+            )
+
+        elif action == TeachingDecision.REVIEW:
+
+            session.teacher_feedback = (
+                "Good effort everyone. Let's briefly review this concept "
+                "before moving on."
+            )
+
+        elif action == TeachingDecision.RETEACH:
+
+            session.teacher_feedback = (
+                "I noticed several learners are still struggling. "
+                "Let me explain this concept in a different way."
+            )
+
+        print("Decision:", decision)
+        print("Teacher State:", session.teacher_state)
+        print("Teacher Feedback:", session.teacher_feedback)
+
+        return decision

@@ -9,17 +9,37 @@ from utils.lesson_engine import LessonEngine, LessonBlock
 
 from utils.classroom_engine import ClassroomEngine
 
+from utils.classroom_state import ClassroomState
+
+from typing import List
+
+from dataclasses import dataclass
+from typing import Optional
+
 
 @dataclass
 class ClassroomSession:
 
     room: StudyRoom
-
     teacher: TeacherAI
-
     classroom_engine: ClassroomEngine | None = None
 
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    class_started: bool = False
+
+    last_transition: datetime = field(default_factory=datetime.utcnow)
+
+    transition_seconds: int = 10
+
+    current_lesson: Optional[str] = None
+
+    # NEW
+    current_message: str = ""
+
+    # -------------------------------------
+    # CLASSROOM STATE
+    # -------------------------------------
+
+    classroom_state: ClassroomState = ClassroomState.CREATED
 
     # -------------------------------------
     # CLASS STATUS
@@ -42,8 +62,6 @@ class ClassroomSession:
     # -------------------------------------
     # QUESTIONS
     # -------------------------------------
-
-    active_question = None
 
     waiting_for_answers: bool = False
 
@@ -94,16 +112,34 @@ class ClassroomSession:
         })
 
 
-
     def submit_answer(self, learner_name, answer):
 
-        self.learner_answers[learner_name] = answer
+        self.learner_answers[learner_name] = {
+
+            "answer": answer,
+            "submitted_at": datetime.utcnow(),
+            "evaluation": None,
+            "feedback": None
+
+        }
 
         self.room.add_event(
 
             f"{learner_name} answered the current question."
 
         )
+
+    def has_answered(self, learner_name):
+
+        return learner_name in self.learner_answers
+
+
+    def everyone_answered(self):
+
+        if len(self.room.learners) == 0:
+            return False
+
+        return len(self.learner_answers) >= len(self.room.learners)
 
 
     def clear_answers(self):

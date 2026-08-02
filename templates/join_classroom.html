@@ -2,16 +2,99 @@
 <html>
 <head>
     <title>Join Classroom</title>
+
+    <style>
+        body{
+            font-family:Arial,Helvetica,sans-serif;
+            background:#f5f7fb;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+
+        .card{
+            background:white;
+            padding:40px;
+            border-radius:12px;
+            width:420px;
+            box-shadow:0 10px 30px rgba(0,0,0,.08);
+        }
+
+        h1{
+            margin-top:0;
+        }
+
+        p{
+            color:#666;
+            line-height:1.6;
+        }
+
+        input{
+            width:100%;
+            padding:14px;
+            margin-top:20px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            font-size:16px;
+            text-transform:uppercase;
+            box-sizing:border-box;
+        }
+
+        button{
+            width:100%;
+            padding:14px;
+            margin-top:20px;
+            border:none;
+            border-radius:8px;
+            background:#2563eb;
+            color:white;
+            font-size:16px;
+            cursor:pointer;
+        }
+
+        a{
+            display:inline-block;
+            margin-top:20px;
+            text-decoration:none;
+        }
+    </style>
+
 </head>
+
 <body>
 
-<h1>Join Classroom</h1>
+<div class="card">
 
-<p>This page will allow students to join using a room code.</p>
+   <h1>{{ session.room.title }}</h1>
 
 <p>
-    <a href="/classroom">← Back</a>
+    You're joining an AI Classroom.
 </p>
+
+<form method="POST">
+
+    <label>Your Name</label>
+
+    <input
+        type="text"
+        name="student_name"
+        placeholder="Enter your name"
+        required
+    >
+
+    <button type="submit">
+        Join Classroom
+    </button>
+
+</form>
+
+    <a href="/classroom">
+        ← Back
+    </a>
+
+</div>
 
 </body>
 </html>

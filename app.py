@@ -3,6 +3,7 @@ import time
 import markdown
 import traceback
 
+
 import os
 
 print("RUNNING APP:", os.path.abspath(__file__))
@@ -14,10 +15,17 @@ from flask import (
     request,
     session,
     jsonify,
-    redirect
+    redirect,
+    url_for
 )
 
+from utils.classroom_controller import ClassroomController
+
+from uuid import uuid4
+
 from utils.pdf_reader import extract_text
+
+from utils.document_processor import process_document
 
 from utils.database import (
     save_or_update_user,
@@ -30,6 +38,8 @@ from utils.database import (
     get_user
 )
 from utils.tutor import ask_tutor
+
+from utils.classroom_session import ClassroomSession
 
 from utils.summarizer import generate_ai_lesson
 from utils.quick_learn import generate_quick_learn
@@ -50,9 +60,14 @@ from utils.paystack import (
 from utils.classroom_engine import (
     StudyRoom,
     ClassroomEngine,
-    Learner
+    Learner,
+    LearnerStatus
 )
 
+from utils.room_code import generate_room_code
+from utils.teacher_ai import TeacherAI
+
+from flask import session as flask_session
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "learnvox-secret-key")
@@ -122,8 +137,20 @@ def study_room_page():
     if not session.get("USER_NAME"):
         return redirect("/")
 
-    engine = rooms["LV-001"]
-    class_session = sessions["LV-001"]
+    room_code = session.get("ROOM_CODE")
+
+    if not room_code:
+        return redirect("/join")
+
+    print("JOIN REQUEST:", room_code)
+    print("AVAILABLE ROOMS:", list(rooms.keys()))
+
+    if room_code not in rooms:
+        return "Classroom no longer exists."
+
+    engine = rooms[room_code]
+    class_session = sessions[room_code]
+
 
     if not session.get("ROOM_USER_ID"):
 
@@ -179,8 +206,10 @@ def submit_answer():
             "message": "Please enter an answer."
         })
 
-    engine = rooms["LV-001"]
-    class_session = sessions["LV-001"]
+    room_code = session["ROOM_CODE"]
+
+    engine = rooms[room_code]
+    class_session = sessions[room_code]
 
     learner = next(
         (
@@ -218,55 +247,59 @@ def submit_answer():
     learner.evaluation_complete = True
     learner.mastery_score = result["score"]
 
-    # ==========================================
-    # Wait for the rest of the class
-    # ==========================================
+# ==========================================
+# Wait for the rest of the class
+# ==========================================
+
+    print("Everyone answered?", engine.everyone_answered())
 
     if engine.everyone_answered():
 
-        # Teacher decides what to do with the whole class
-        decision = class_session.teacher.decide_next_action(
+        print("Calling evaluate_class()")
+
+        decision = class_session.teacher.evaluate_class(
             class_session
         )
 
         if decision["action"] == TeachingDecision.CONTINUE:
 
-            class_session.teacher.next_block(class_session)
+    # Temporarily disabled while we fix synchronization
+    # class_session.teacher.next_block(class_session)
+            pass
 
         elif decision["action"] == TeachingDecision.REVIEW:
 
-            # We'll implement this next
             pass
 
         elif decision["action"] == TeachingDecision.RETEACH:
 
-            # We'll implement this next
             pass
 
     else:
 
-        # Other learners haven't answered yet
         decision = {
             "action": "waiting",
             "reason": "Waiting for the remaining learners to answer."
         }
 
-    # ==========================================
-    # Send response back to this learner
-    # ==========================================
+# ==========================================
+# Send response back to this learner
+# ==========================================
 
     return jsonify({
-            "success": True,
-            "correct": result["correct"],
-            "score": result["score"],
-            "feedback": result["feedback"],
-            "decision": (
-                decision["action"].value
-                if isinstance(decision["action"], TeachingDecision)
-                else decision["action"]
-            ),
-            "reason": decision["reason"]
-        })
+        "success": True,
+        "correct": result["correct"],
+        "score": result["score"],
+        "feedback": result["feedback"],
+        "decision": (
+            decision["action"].value
+            if isinstance(decision["action"], TeachingDecision)
+            else decision["action"]
+        ),
+        "reason": decision["reason"]
+    })
+
+
 # =====================================================
 # JOIN STUDY ROOM
 # =====================================================
@@ -274,35 +307,54 @@ def submit_answer():
 @app.route("/join-room", methods=["POST"])
 def join_room():
 
-    room_engine = rooms["LV-001"]
+    room_code = request.form["room_code"].strip().upper()
 
-    # Already joined?
-    if session.get("ROOM_USER_ID"):
+    if room_code not in rooms:
+        return f"""
+        <h2>Classroom Not Found</h2>
 
-        return study_room_page()
+        <p>
+        No classroom exists with room code:
+        <strong>{room_code}</strong>
+        </p>
 
-    # Get user's LearnVox name
-    name = session.get("USER_NAME")
+        <p>
+        <a href="/join">Try Again</a>
+        </p>
+        """
+
+    engine = rooms[room_code]
+
+   # TEMPORARY DEBUG - Clear any previous classroom session
+    session.pop("ROOM_USER_ID", None)
+    session.pop("ROOM_CODE", None)
+    session.pop("ROOM_USER_NAME", None)
+    session.pop("USER_NAME", None)
+        
+    name = request.form["student_name"].strip()
 
     if not name:
+        return """
+    <h2>Name Required</h2>
 
-        return "User session not found.", 400
+    <p>
+    Please enter your name before joining the classroom.
+    </p>
+    """
 
     learner = Learner(
-
-        id=str(len(room_engine.room.learners) + 1),
-
-        name=name
-
+    id=str(len(engine.room.learners) + 1),
+    name=name
     )
 
-    room_engine.join(learner)
+    engine.join(learner)
 
+    session["USER_NAME"] = name
+    session["ROOM_CODE"] = room_code
     session["ROOM_USER_ID"] = learner.id
     session["ROOM_USER_NAME"] = learner.name
 
-    return study_room_page()
-
+    return redirect("/study-room")
 
 # =====================================================
 # I'M READY
@@ -315,13 +367,15 @@ def ready():
 
     if learner_id:
 
-        engine = rooms["LV-001"]
-        class_session = sessions["LV-001"]
+        room_code = session["ROOM_CODE"]
+
+        engine = rooms[room_code]
+        class_session = sessions[room_code]
 
         engine.mark_ready(learner_id)
 
         # Automatically start the class
-        if engine.everyone_ready():
+    if engine.everyone_ready():
 
             class_session.teacher.start_class(
                 class_session,
@@ -338,7 +392,10 @@ def ready():
 @app.route("/study-room/next", methods=["POST"])
 def next_lesson():
 
-    class_session = sessions["LV-001"]
+    room_code = session["ROOM_CODE"]
+
+    engine = rooms[room_code]
+    class_session = sessions[room_code]
 
     class_session.teacher.next_block(
         class_session
@@ -350,7 +407,10 @@ def next_lesson():
 @app.route("/study-room/question", methods=["POST"])
 def study_room_question():
 
-    class_session = sessions["LV-001"]
+    room_code = session["ROOM_CODE"]
+
+    engine = rooms[room_code]
+    class_session = sessions[room_code]
 
     question = request.form["question"]
 
@@ -400,27 +460,13 @@ def upload():
     file.save(filepath)
 
     # -------------------------
-    # Save User
+    # Extract Text
     # -------------------------
-    save_or_update_user(
-    full_name,
-    institution,
-    email,
-    file.filename
-)
-    
-    increment_documents_uploaded(email)
 
-    start_time = time.time()
+    try:
+        text = process_document(filepath)
 
-    # -------------------------
-# Extract PDF
-# -------------------------
-
-    text = extract_text(filepath)
-
-    if len(text.strip()) == 0:
-
+    except ValueError:
         return """
         <h2>Document Not Readable</h2>
 
@@ -434,10 +480,28 @@ def upload():
         """
 
     # -------------------------
+    # Save User
+    # -------------------------
+
+    save_or_update_user(
+        full_name,
+        institution,
+        email,
+        file.filename
+    )
+
+    increment_documents_uploaded(email)
+
+    start_time = time.time()
+
+    # -------------------------
     # Prepare Study Room Lesson
     # -------------------------
 
-    class_session = sessions["LV-001"]
+    room_code = session["ROOM_CODE"]
+
+    engine = rooms[room_code]
+    class_session = sessions[room_code]
 
     class_session.teacher.prepare_lesson(
         class_session,
@@ -450,10 +514,6 @@ def upload():
     # -------------------------
     # Store Session
     # -------------------------
-
-    # -------------------------
-# Store Session
-# -------------------------
 
     session.clear()
 
@@ -929,15 +989,392 @@ def verify_payment_route():
 def classroom_home():
     return render_template("classroom_home.html")
 
-
-@app.route("/classroom/create")
+@app.route("/classroom/create", methods=["GET", "POST"])
 def create_classroom():
-    return render_template("create_classroom.html")
+
+    # ==========================
+    # SHOW CREATE PAGE
+    # ==========================
+    if request.method == "GET":
+        return render_template("create_classroom.html")
+
+    # ==========================
+    # CREATE CLASSROOM
+    # ==========================
+    title = request.form["title"]
+    duration = request.form["duration"]
+
+    host_name = request.form["host_name"].strip()
+
+    lesson_file = request.files["lesson"]
+
+    # Save uploaded lesson
+    filepath = os.path.join(
+        app.config["UPLOAD_FOLDER"],
+        lesson_file.filename
+    )
+
+    lesson_file.save(filepath)
+
+    try:
+
+        # ==========================
+        # AI STUDIES THE LESSON
+        # ==========================
+        text = process_document(filepath)
+
+        # ==========================
+        # CREATE CLASSROOM
+        # ==========================
+        room_code = generate_room_code()
+
+        # ==========================
+        # CREATE HOST LEARNER
+        # ==========================
+        host = Learner(
+            id=str(uuid4()),
+            name=host_name
+        )
+
+        # ==========================
+        # CREATE CLASSROOM
+        # ==========================
+        room = StudyRoom(
+            room_id=room_code,
+            title=title,
+            host_id=host.id
+        )
+
+        # ==========================
+        # CREATE CLASSROOM ENGINE
+        # ==========================
+        engine = ClassroomEngine(room)
+
+        # ==========================
+        # CREATE AI TEACHER
+        # ==========================
+        teacher = TeacherAI()
+
+       
+        
+        # ==========================
+        # CREATE CLASS SESSION
+        # ==========================
+        class_session = ClassroomSession(
+            room=room,
+            teacher=teacher,
+            classroom_engine=engine
+        )
+
+        # ==========================
+        # HOST JOINS CLASSROOM
+        # ==========================
+        engine.join(host)
+        engine.mark_ready(host.id)
+
+        flask_session["learner_id"] = host.id
+        flask_session["learner_name"] = host.name
+
+        # ==========================
+        # AI PREPARES TODAY'S LESSON
+        # ==========================
+        class_session.teacher.prepare_lesson(
+            class_session,
+            text
+        )
+
+        # ==========================
+        # SAVE ACTIVE CLASSROOM
+        # ==========================
+        rooms[room_code] = engine
+        sessions[room_code] = class_session
+
+        # ==========================
+        # GENERATE INVITE LINK
+        # ==========================
+        invite_link = url_for(
+            "join_classroom",
+            room_code=room_code,
+            _external=True
+        )
+
+        # ==========================
+        # OPEN CLASSROOM LOBBY
+        # ==========================
+        return redirect(
+            url_for(
+                "classroom_lobby",
+                room_code=room_code
+        )
+)
+
+    except Exception as e:
+
+        return f"Error creating classroom: {e}", 500
+
+    
+@app.route("/join/<room_code>", methods=["GET", "POST"])
+def join_classroom(room_code):
+
+    # ==========================
+    # FIND CLASSROOM
+    # ==========================
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "<h2>Classroom not found.</h2>", 404
+
+    # ==========================
+    # SHOW JOIN PAGE
+    # ==========================
+    if request.method == "GET":
+        return render_template(
+            "join_classroom.html",
+            session=session
+        )
+
+    # ==========================
+    # STUDENT JOINS CLASSROOM
+    # ==========================
+    learner_name = request.form.get("student_name", "").strip()
+
+    if not learner_name:
+        return "Please enter your name.", 400
+
+    learner = Learner(
+        id=str(uuid4()),
+        name=learner_name
+    )
+
+    # ==========================
+    # ENSURE CLASSROOM ENGINE EXISTS
+    # ==========================
+    if session.classroom_engine is None:
+        session.classroom_engine = ClassroomEngine(session.room)
+
+    # ==========================
+    # ADD LEARNER TO CLASSROOM
+    # ==========================
+    session.classroom_engine.join(learner)
+
+    flask_session["learner_id"] = learner.id
+    flask_session["learner_name"] = learner.name
 
 
-@app.route("/join")
-def join_classroom():
-    return render_template("join_classroom.html")
+    # ==========================
+    # OPEN STUDENT LOBBY
+    # ==========================
+    return render_template(
+        "student_lobby.html",
+        session=session,
+        learner=learner,
+        LearnerStatus=LearnerStatus
+    )
+
+@app.route("/classroom/<room_code>")
+def classroom_lobby(room_code):
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    invite_link = url_for(
+        "join_classroom",
+        room_code=room_code,
+        _external=True
+    )
+
+    return render_template(
+        "classroom_lobby.html",
+        session=session,
+        invite_link=invite_link,
+        LearnerStatus=LearnerStatus
+    )
+
+@app.route("/take-seat/<room_code>", methods=["POST"])
+def take_seat(room_code):
+
+    # ==========================
+    # FIND CLASSROOM
+    # ==========================
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    # ==========================
+    # FIND LEARNER
+    # ==========================
+    learner_id = request.form["learner_id"]
+
+    learner = None
+
+    for l in session.room.learners:
+
+        if l.id == learner_id:
+            learner = l
+            break
+
+    if learner is None:
+        return "Learner not found.", 404
+
+    # ==========================
+    # MARK LEARNER AS READY
+    # ==========================
+    session.classroom_engine.mark_ready(learner_id)
+
+    # ==========================
+    # OPEN STUDENT LOBBY
+    # ==========================
+    return render_template(
+        "student_lobby.html",
+        session=session,
+        learner=learner,
+        LearnerStatus=LearnerStatus
+    )
+
+@app.route("/classroom/<room_code>/start", methods=["POST"])
+def start_class(room_code):
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    session.class_started = True
+
+    controller = ClassroomController(session)
+
+    controller.start()
+
+    return redirect(
+        url_for(
+            "live_classroom",
+            room_code=room_code
+        )
+    )
+
+
+@app.route("/classroom/<room_code>/live")
+def live_classroom(room_code):
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    learner_name = flask_session.get("learner_name")
+
+    print("Host ID:", session.room.host_id)
+    print("Current Learner ID:", flask_session.get("learner_id"))
+
+    return render_template(
+    "classroom_live.html",
+    session=session,
+    room_code=room_code,
+    waiting=session.waiting_for_answers,
+    learner_name=learner_name,
+    is_host=(
+        flask_session.get("learner_id")
+        == session.room.host_id
+    )
+)
+
+
+@app.route("/classroom/<room_code>/next", methods=["POST"])
+def next_classroom_step(room_code):
+
+    print(">>>> /next route reached <<<<")
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    controller = ClassroomController(session)
+
+    controller.advance()
+
+    return redirect(
+        url_for(
+            "live_classroom",
+            room_code=room_code
+        )
+    )
+
+@app.route("/classroom/<room_code>/status")
+def classroom_status(room_code):
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return {"started": False}, 404
+
+    return {
+        "started": session.class_started
+    }
+
+
+@app.route("/classroom/<room_code>/answer", methods=["POST"])
+def submit_classroom_answer(room_code):
+
+    class_session = sessions.get(room_code)
+
+    if class_session is None:
+        return "Classroom not found.", 404
+
+    learner_name = flask_session.get("learner_name")
+
+    if learner_name is None:
+        return "Learner session expired.", 400
+
+    answer = request.form.get("answer", "").strip()
+
+    if not answer:
+        return "Please enter an answer.", 400
+
+    # -------------------------------------
+    # Classroom Controller
+    # -------------------------------------
+
+    controller = ClassroomController(class_session)
+
+    # -------------------------------------
+    # Store learner answer
+    # -------------------------------------
+
+    controller.submit_answer(
+        learner_name,
+        answer
+    )
+
+    # -------------------------------------
+    # Wait until everyone has answered
+    # -------------------------------------
+
+    if controller.everyone_answered():
+
+        print("All learners have submitted.")
+
+        decision = controller.evaluate()
+
+        print("Teacher Decision:", decision)
+
+    else:
+
+        print("Waiting for more learners...")
+
+    # -------------------------------------
+    # Refresh classroom
+    # -------------------------------------
+
+    return redirect(
+        url_for(
+            "live_classroom",
+            room_code=room_code
+        )
+    )
 
 # =====================================================
 # RUN APP
