@@ -1324,6 +1324,7 @@ def submit_classroom_answer(room_code):
     if class_session is None:
         return "Classroom not found.", 404
 
+    learner_id = flask_session.get("learner_id")
     learner_name = flask_session.get("learner_name")
 
     if learner_name is None:
@@ -1340,30 +1341,12 @@ def submit_classroom_answer(room_code):
 
     controller = ClassroomController(class_session)
 
-    # -------------------------------------
-    # Store learner answer
-    # -------------------------------------
-
-    controller.submit_answer(
-        learner_name,
+    result = controller.submit_answer(
+        learner_id,
         answer
     )
 
-    # -------------------------------------
-    # Wait until everyone has answered
-    # -------------------------------------
-
-    if controller.everyone_answered():
-
-        print("All learners have submitted.")
-
-        decision = controller.evaluate()
-
-        print("Teacher Decision:", decision)
-
-    else:
-
-        print("Waiting for more learners...")
+    print(result)
 
     # -------------------------------------
     # Refresh classroom

@@ -75,20 +75,51 @@ class ClassroomController:
     # SUBMIT ANSWER
     # =====================================
 
-    def submit_answer(self, learner_name, answer):
+    def submit_answer(self, learner_id, answer):
 
-        self.session.submit_answer(
-            learner_name,
+        print("----- Learners in room -----")
+        for l in self.session.room.learners:
+            print(l.id, l.name)
+        print("----------------------------")
+        print("Looking for learner:", learner_id)
+
+        # Find learner
+        learner = next(
+            (
+                l for l in self.session.room.learners
+                if l.id == learner_id
+            ),
+            None
+        )
+
+        if learner is None:
+            return {
+                "status": "learner_not_found"
+            }
+
+        # Store answer on the Learner object
+        self.engine.submit_answer(
+            learner.id,
             answer
         )
+
+        # Wait until everyone has answered
+        if not self.engine.everyone_answered():
+            return {
+                "status": "waiting"
+            }
+
+        # Evaluate class
+        return self.evaluate()
 
     # =====================================
     # EVERYONE ANSWERED?
     # =====================================
 
+
     def everyone_answered(self):
 
-        return self.session.everyone_answered()
+        return self.engine.everyone_answered()
 
     # =====================================
     # EVALUATE
