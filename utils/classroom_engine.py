@@ -218,9 +218,14 @@ class ClassroomEngine:
                 for learner in self.room.learners
             )
 
+
     def reset_answers(self):
 
+        print(">>> RESETTING ANSWERS <<<")
+
         for learner in self.room.learners:
+
+            print("Reset:", learner.name)
 
             learner.current_answer = ""
             learner.has_answered = False
@@ -233,6 +238,8 @@ class ClassroomEngine:
 
             learner.status = LearnerStatus.READY
 
+        print(">>> RESET COMPLETE <<<")
+    
     def average_score(self):
 
         evaluated = [

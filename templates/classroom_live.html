@@ -134,6 +134,9 @@
 
 const waiting = document.body.dataset.waiting === "true";
 
+console.log("Waiting:", waiting);
+console.log("Is Host:", {{ is_host|tojson }});
+
 function advanceLesson() {
 
     console.log("Calling /next...");
@@ -151,6 +154,39 @@ if (!waiting) {
     console.log("Timer started");
 
     setTimeout(advanceLesson, 10000);
+
+}
+
+// -------------------------------------
+// Waiting Synchronizer
+// -------------------------------------
+
+if (waiting) {
+
+    console.log("Waiting for other learners...");
+
+    const waitingInterval = setInterval(() => {
+
+        fetch("/classroom/{{ room_code }}/status")
+            .then(response => response.json())
+            .then(data => {
+
+                console.log("Waiting:", data.waiting);
+
+                // Evaluation has finished
+                if (!data.waiting) {
+
+                    clearInterval(waitingInterval);
+
+                    console.log("Class updated. Reloading...");
+
+                    location.reload();
+
+                }
+
+            });
+
+    }, 2000);
 
 }
 

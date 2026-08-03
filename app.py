@@ -1312,7 +1312,8 @@ def classroom_status(room_code):
         return {"started": False}, 404
 
     return {
-        "started": session.class_started
+        "started": session.class_started,
+        "waiting": session.waiting_for_answers
     }
 
 

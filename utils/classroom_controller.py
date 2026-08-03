@@ -2,6 +2,8 @@ from utils.teacher_state import TeacherState
 
 from datetime import datetime, timedelta
 
+from utils.classroom.state import ClassroomState
+
 
 class ClassroomController:
 
@@ -11,6 +13,16 @@ class ClassroomController:
         self.teacher = session.teacher
         self.lesson = session.lesson_engine
         self.engine = session.classroom_engine
+
+    # -------------------------------------
+    # SET CLASSROOM STATE
+    # -------------------------------------
+
+    def set_state(self, state):
+
+        self.session.classroom_state = state
+
+        print(f"CLASSROOM STATE → {state.value}")
 
     # =====================================
     # START CLASS
@@ -22,6 +34,8 @@ class ClassroomController:
             self.session,
             self.engine
         )
+
+        self.set_state(ClassroomState.WELCOME)
 
         self.session.last_transition = datetime.utcnow()
 
@@ -50,6 +64,18 @@ class ClassroomController:
 
         if not self.should_advance():
             return False
+
+        # -------------------------------------
+        # Feedback finished
+        # -------------------------------------
+
+        if self.session.teacher_state == TeacherState.FEEDBACK:
+
+            return self.continue_lesson()
+
+        # -------------------------------------
+        # Normal lesson progression
+        # -------------------------------------
 
         self.session.current_message = self.teacher.next_block(
             self.session
@@ -103,6 +129,9 @@ class ClassroomController:
             answer
         )
 
+        print("Waiting:", self.session.waiting_for_answers)
+        print("Everyone answered:", self.engine.everyone_answered())
+
         # Wait until everyone has answered
         if not self.engine.everyone_answered():
             return {
@@ -127,6 +156,8 @@ class ClassroomController:
 
     def evaluate(self):
 
+        print(">>> CONTROLLER evaluate()")
+
         return self.teacher.evaluate_class(
             self.session
         )
@@ -138,6 +169,9 @@ class ClassroomController:
     def continue_lesson(self):
 
         self.session.clear_answers()
+
+        print("Calling reset_answers()...")
+        self.engine.reset_answers()
 
         self.session.waiting_for_answers = False
 
