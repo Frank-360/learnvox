@@ -88,7 +88,43 @@
 
 </div>
 
-{% if session.waiting_for_answers %}
+{% if session.classroom_state.value == "feedback" %}
+
+<div class="evaluation-card">
+
+    <h2>🎓 LearnVox Evaluation</h2>
+
+    <h3>Your Score</h3>
+
+    <div class="score">
+        {{ learner.last_score if learner else 0 }}%
+    </div>
+
+    <h3>Your Feedback</h3>
+
+    <p>
+        {{ learner.last_feedback if learner else "No feedback available." }}
+    </p>
+
+    <hr>
+
+    <h3>Class Average</h3>
+
+    <div class="score">
+        {{ session.classroom_engine.average_score() }}%
+    </div>
+
+    <hr>
+
+    <h3>Teacher</h3>
+
+    <p>
+        {{ session.teacher_feedback }}
+    </p>
+
+</div>
+
+{% elif session.waiting_for_answers %}
 
     {% if not session.has_answered(learner_name) %}
 
@@ -133,8 +169,10 @@
 <script>
 
 const waiting = document.body.dataset.waiting === "true";
+const classroomState = "{{ session.classroom_state.value }}";
 
 console.log("Waiting:", waiting);
+console.log("Current Classroom State:", classroomState);
 console.log("Is Host:", {{ is_host|tojson }});
 
 function advanceLesson() {
@@ -149,9 +187,15 @@ function advanceLesson() {
 
 }
 
-if (!waiting) {
+if (
+    classroomState === "welcome" ||
+    classroomState === "introduction" ||
+    classroomState === "teaching" ||
+    classroomState === "review" ||
+    classroomState === "reteach"
+) {
 
-    console.log("Timer started");
+    console.log("Auto-advance timer started");
 
     setTimeout(advanceLesson, 10000);
 
@@ -172,6 +216,7 @@ if (waiting) {
             .then(data => {
 
                 console.log("Waiting:", data.waiting);
+                console.log("Classroom State:", data.state);
 
                 // Evaluation has finished
                 if (!data.waiting) {

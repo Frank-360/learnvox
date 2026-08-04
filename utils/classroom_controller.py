@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 from utils.classroom.state import ClassroomState
 
+from threading import Thread
+
 
 class ClassroomController:
 
@@ -139,7 +141,18 @@ class ClassroomController:
             }
 
         # Evaluate class
-        return self.evaluate()
+        self.session.classroom_state = ClassroomState.EVALUATING
+        self.session.teacher_state = TeacherState.EVALUATING
+
+        Thread(
+            target=self.evaluate_in_background,
+            daemon=True
+        ).start()
+
+        return {
+            "status": "evaluating"
+        }
+    
 
     # =====================================
     # EVERYONE ANSWERED?
@@ -158,9 +171,35 @@ class ClassroomController:
 
         print(">>> CONTROLLER evaluate()")
 
-        return self.teacher.evaluate_class(
+        # -------------------------------------
+        # Classroom enters evaluation
+        # -------------------------------------
+
+        self.session.classroom_state = ClassroomState.EVALUATING
+        self.session.teacher_state = TeacherState.EVALUATING
+
+        print("CLASSROOM STATE →", self.session.classroom_state.value)
+
+        # -------------------------------------
+        # AI evaluates
+        # -------------------------------------
+
+        decision = self.teacher.evaluate_class(
             self.session
         )
+
+        # -------------------------------------
+        # Evaluation finished
+        # -------------------------------------
+
+        self.session.classroom_state = ClassroomState.FEEDBACK
+        self.session.teacher_state = TeacherState.FEEDBACK
+
+        print("CLASSROOM STATE →", self.session.classroom_state.value)
+
+        self.session.waiting_for_answers = False
+
+        return decision
 
     # =====================================
     # CONTINUE LESSON
@@ -184,3 +223,11 @@ class ClassroomController:
         self.session.last_transition = datetime.utcnow()
 
         return self.session.current_message
+
+    def evaluate_in_background(self):
+
+        print(">>> Background evaluation started")
+
+        self.evaluate()
+
+        print(">>> Background evaluation finished")

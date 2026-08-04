@@ -14,6 +14,8 @@ from enum import Enum
 
 from datetime import datetime
 
+from utils.classroom.state import ClassroomState
+
 
 class TeachingDecision(Enum):
     CONTINUE = "continue"
@@ -230,9 +232,12 @@ class TeacherAI:
 
         session.active_question = block
 
+        session.classroom_state = ClassroomState.WAITING_FOR_ANSWERS
+
         session.teacher_state = TeacherState.WAITING_FOR_ANSWERS
 
         session.waiting_for_answers = True
+
 
         session.room.add_event(
             f"Teacher asked: {block.question}"
@@ -350,7 +355,9 @@ class TeacherAI:
 
         print(">>> evaluate_class() called")
 
-        session.teacher_state = TeacherState.EVALUATING
+        #session.teacher_state = TeacherState.EVALUATING
+
+        session.classroom_state = ClassroomState.EVALUATING
 
         learners = session.room.learners
 
@@ -402,8 +409,10 @@ class TeacherAI:
 
         decision = self.decide_next_action(session)
 
-        session.waiting_for_answers = False
-        session.teacher_state = TeacherState.FEEDBACK
+        # session.waiting_for_answers = False
+        # session.teacher_state = TeacherState.FEEDBACK
+
+        # session.classroom_state = ClassroomState.FEEDBACK
 
         action = decision["action"]
 

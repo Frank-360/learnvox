@@ -1269,12 +1269,21 @@ def live_classroom(room_code):
     print("Host ID:", session.room.host_id)
     print("Current Learner ID:", flask_session.get("learner_id"))
 
+    learner = next(
+    (
+        l for l in session.room.learners
+        if l.name == learner_name
+    ),
+    None
+)
+
     return render_template(
     "classroom_live.html",
     session=session,
     room_code=room_code,
     waiting=session.waiting_for_answers,
     learner_name=learner_name,
+    learner=learner,
     is_host=(
         flask_session.get("learner_id")
         == session.room.host_id
@@ -1312,9 +1321,10 @@ def classroom_status(room_code):
         return {"started": False}, 404
 
     return {
-        "started": session.class_started,
-        "waiting": session.waiting_for_answers
-    }
+    "started": session.class_started,
+    "waiting": session.waiting_for_answers,
+    "state": session.classroom_state.value
+}
 
 
 @app.route("/classroom/<room_code>/answer", methods=["POST"])
@@ -1359,6 +1369,23 @@ def submit_classroom_answer(room_code):
             room_code=room_code
         )
     )
+
+
+@app.route("/classroom/<room_code>/evaluate", methods=["POST"])
+def evaluate_classroom(room_code):
+
+    session = sessions.get(room_code)
+
+    if session is None:
+        return "Classroom not found.", 404
+
+    controller = ClassroomController(session)
+
+    controller.evaluate()
+
+    return {
+        "status": "feedback"
+    }
 
 # =====================================================
 # RUN APP
