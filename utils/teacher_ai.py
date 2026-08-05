@@ -16,6 +16,8 @@ from datetime import datetime
 
 from utils.classroom.state import ClassroomState
 
+from utils.reinforcement_generator import generate_reinforcement
+
 
 class TeachingDecision(Enum):
     CONTINUE = "continue"
@@ -428,7 +430,8 @@ class TeacherAI:
                 "reason": "AI recommends reviewing."
             }
 
-        elif ai_decision == "REINFORCE":
+
+        elif ai_decision in ("REINFORCE", "RETEACH"):
 
             decision = {
                 "action": TeachingDecision.REINFORCE,
@@ -445,6 +448,28 @@ class TeacherAI:
         session.teacher_feedback = evaluation["teacher_feedback"]
 
         session.teaching_decision = decision["action"]
+
+
+        if decision["action"] == TeachingDecision.REINFORCE:
+
+            session.reinforcement_message = generate_reinforcement(
+
+                lesson_title=session.current_lesson,
+
+                question=block.question,
+
+                expected_answer=block.expected_answer,
+
+                learner_answers=learner_answers,
+
+                teacher_feedback=session.teacher_feedback
+
+            )
+
+
+            print("\n========== REINFORCEMENT ==========")
+            print(session.reinforcement_message)
+            print("===================================\n")
 
         # session.waiting_for_answers = False
         # session.teacher_state = TeacherState.FEEDBACK

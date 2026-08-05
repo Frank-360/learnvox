@@ -80,6 +80,8 @@ class ClassroomSession:
 
     teacher_feedback: str = ""
 
+    reinforcement_message: str = ""
+
     teaching_decision = None
 
     # -------------------------------------
