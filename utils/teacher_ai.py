@@ -20,7 +20,7 @@ from utils.classroom.state import ClassroomState
 class TeachingDecision(Enum):
     CONTINUE = "continue"
     REVIEW = "review"
-    RETEACH = "reteach"
+    REINFORCE = "reinforce"
 
 
 class TeacherAI:
@@ -342,7 +342,7 @@ class TeacherAI:
             }
 
         return {
-            "action": TeachingDecision.RETEACH,
+            "action": TeachingDecision.REINFORCE,
             "reason": "The class needs this concept explained again."
         }
 
@@ -390,6 +390,9 @@ class TeacherAI:
                 learner_answers
             )
 
+        print("AI Decision:", evaluation["decision"])
+        print("AI Teacher Feedback:", evaluation["teacher_feedback"])
+
             # Save the evaluation for each learner
         results = {
                 result["name"]: result
@@ -407,35 +410,46 @@ class TeacherAI:
             learner.last_feedback = result["feedback"]
             learner.evaluation_complete = True
 
-        decision = self.decide_next_action(session)
+        # decision = self.decide_next_action(session)
+
+        ai_decision = evaluation["decision"].upper()
+
+        if ai_decision == "CONTINUE":
+
+            decision = {
+                "action": TeachingDecision.CONTINUE,
+                "reason": "AI recommends continuing."
+            }
+
+        elif ai_decision == "REVIEW":
+
+            decision = {
+                "action": TeachingDecision.REVIEW,
+                "reason": "AI recommends reviewing."
+            }
+
+        elif ai_decision == "REINFORCE":
+
+            decision = {
+                "action": TeachingDecision.REINFORCE,
+                "reason": "AI recommends reinforcing."
+            }
+
+        else:
+
+            decision = {
+                "action": TeachingDecision.REVIEW,
+                "reason": "Unknown AI decision."
+            }
+
+        session.teacher_feedback = evaluation["teacher_feedback"]
+
+        session.teaching_decision = decision["action"]
 
         # session.waiting_for_answers = False
         # session.teacher_state = TeacherState.FEEDBACK
 
         # session.classroom_state = ClassroomState.FEEDBACK
-
-        action = decision["action"]
-
-        if action == TeachingDecision.CONTINUE:
-
-            session.teacher_feedback = (
-                "Excellent! Most of the class understood the concept. "
-                "Let's continue."
-            )
-
-        elif action == TeachingDecision.REVIEW:
-
-            session.teacher_feedback = (
-                "Good effort everyone. Let's briefly review this concept "
-                "before moving on."
-            )
-
-        elif action == TeachingDecision.RETEACH:
-
-            session.teacher_feedback = (
-                "I noticed several learners are still struggling. "
-                "Let me explain this concept in a different way."
-            )
 
         print("Decision:", decision)
         print("Teacher State:", session.teacher_state)

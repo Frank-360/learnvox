@@ -13,6 +13,6 @@ class TeacherState(Enum):
 
     FEEDBACK = "feedback"
 
-    RETEACHING = "reteaching"
+    REINFORCING = "reinforcing"
 
     FINISHED = "finished"

@@ -21,6 +21,6 @@ class ClassroomState(Enum):
 
     REVIEW = "review"
 
-    RETEACH = "reteach"
+    REINFORCE = "reinforce"
 
     COMPLETED = "completed"

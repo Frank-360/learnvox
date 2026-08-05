@@ -73,6 +73,15 @@ class ClassroomSession:
 
     discussion: list = field(default_factory=list)
 
+
+    # -------------------------------------
+    # TEACHING DECISION
+    # -------------------------------------
+
+    teacher_feedback: str = ""
+
+    teaching_decision = None
+
     # -------------------------------------
     # START CLASS
     # -------------------------------------

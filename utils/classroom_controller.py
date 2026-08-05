@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 from utils.classroom.state import ClassroomState
 
+from utils.teacher_ai import TeachingDecision
+
 from threading import Thread
 
 
@@ -72,6 +74,26 @@ class ClassroomController:
         # -------------------------------------
 
         if self.session.teacher_state == TeacherState.FEEDBACK:
+
+            # -------------------------------------
+            # Execute AI teaching decision
+            # -------------------------------------
+
+            if self.session.teaching_decision == TeachingDecision.CONTINUE:
+
+                return self.continue_lesson()
+
+            elif self.session.teaching_decision == TeachingDecision.REVIEW:
+
+                print(">>> REVIEW not implemented yet")
+
+                return self.continue_lesson()
+
+            elif self.session.teaching_decision == TeachingDecision.REINFORCE:
+
+                print(">>> REINFORCE not implemented yet")
+
+                return self.continue_lesson()
 
             return self.continue_lesson()
 
@@ -188,9 +210,9 @@ class ClassroomController:
             self.session
         )
 
-        # -------------------------------------
-        # Evaluation finished
-        # -------------------------------------
+       # -------------------------------------
+# Evaluation finished
+# -------------------------------------
 
         self.session.classroom_state = ClassroomState.FEEDBACK
         self.session.teacher_state = TeacherState.FEEDBACK
@@ -199,8 +221,13 @@ class ClassroomController:
 
         self.session.waiting_for_answers = False
 
-        return decision
+        # -------------------------------------
+        # Store decision for later execution
+        # -------------------------------------
 
+        self.session.teaching_decision = decision["action"]
+
+        return decision
     # =====================================
     # CONTINUE LESSON
     # =====================================

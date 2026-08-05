@@ -271,7 +271,7 @@ def submit_answer():
 
             pass
 
-        elif decision["action"] == TeachingDecision.RETEACH:
+        elif decision["action"] == TeachingDecision.REINFORCE:
 
             pass
 
