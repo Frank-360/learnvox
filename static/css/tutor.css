@@ -3152,3 +3152,13 @@ img{
         margin-top:8px;
     }
 }
+
+.primary-btn,
+.primary-btn:visited,
+.primary-btn:hover{
+
+    text-decoration:none;
+
+    color:#fff;
+
+}

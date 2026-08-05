@@ -1,56 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create Classroom</title>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Create AI Classroom</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/create_classroom.css') }}">
+
 </head>
 <body>
 
-<h1>Create Classroom</h1>
+<div class="classroom-wrapper">
 
-<p>This page will allow a teacher to create a new AI classroom.</p>
+    <div class="classroom-card">
 
-<p>
-    <a href="/classroom">← Back</a>
-</p>
+        <h1>🎓 Create AI Classroom</h1>
 
-<h1>Create AI Classroom</h1>
+        <p class="subtitle">
 
-<form action="/classroom/create" method="POST" enctype="multipart/form-data">
+            Your AI Tutor has already studied your lesson.
 
-    <label>Your Name</label>
-        <input
-            type="text"
-            name="host_name"
-            placeholder="e.g. Frank"
-            required>
+            Create a classroom and begin teaching.
 
-    <label>Classroom Title</label>
-    <input
-        type="text"
-        name="title"
-        placeholder="e.g. Introduction to Artificial Intelligence"
-        required>
+        </p>
 
-    <label>Upload Lesson (PDF)</label>
-    <input
-        type="file"
-        name="lesson"
-        accept=".pdf"
-        required>
+        <form method="POST">
 
-    <label>Duration</label>
+            <div class="readonly-card">
 
-    <select name="duration">
-        <option value="30">30 Minutes</option>
-        <option value="60" selected>60 Minutes</option>
-        <option value="90">90 Minutes</option>
-    </select>
+                <span class="label">
+                    👨‍🏫 Host
+                </span>
 
-    <button type="submit">
-        Create Classroom
-    </button>
+                <strong>
+                    {{ host_name }}
+                </strong>
 
-</form>
+            </div>
+
+            <div class="readonly-card">
+
+                <span class="label">
+                    📄 Lesson
+                </span>
+
+                <strong>
+                    {{ lesson_name }}
+                </strong>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+
+                    Classroom Title
+
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    value="{{ lesson_name.split('.')[0] }}"
+                    required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+
+                    Duration
+
+                </label>
+
+                <select name="duration">
+
+                    <option>30 Minutes</option>
+
+                    <option selected>60 Minutes</option>
+
+                    <option>90 Minutes</option>
+
+                    <option>120 Minutes</option>
+
+                </select>
+
+            </div>
+
+            <button
+                class="primary-btn">
+
+                🚀 Create Classroom
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
 
 </body>
 </html>

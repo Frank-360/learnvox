@@ -140,7 +140,7 @@ def study_room_page():
     room_code = session.get("ROOM_CODE")
 
     if not room_code:
-        return redirect("/join")
+        return redirect(url_for("create_classroom"))
 
     print("JOIN REQUEST:", room_code)
     print("AVAILABLE ROOMS:", list(rooms.keys()))
@@ -998,32 +998,26 @@ def create_classroom():
     # SHOW CREATE PAGE
     # ==========================
     if request.method == "GET":
-        return render_template("create_classroom.html")
+
+        return render_template(
+            "create_classroom.html",
+            host_name=session.get("USER_NAME", ""),
+            lesson_name=session.get("FILE_NAME", "")
+        )
 
     # ==========================
     # CREATE CLASSROOM
     # ==========================
+  
     title = request.form["title"]
     duration = request.form["duration"]
 
-    host_name = request.form["host_name"].strip()
+    host_name = session["USER_NAME"]
 
-    lesson_file = request.files["lesson"]
-
-    # Save uploaded lesson
-    filepath = os.path.join(
-        app.config["UPLOAD_FOLDER"],
-        lesson_file.filename
-    )
-
-    lesson_file.save(filepath)
+    lesson_filename = session["FILE_NAME"]
+    text = session["CURRENT_DOCUMENT"]
 
     try:
-
-        # ==========================
-        # AI STUDIES THE LESSON
-        # ==========================
-        text = process_document(filepath)
 
         # ==========================
         # CREATE CLASSROOM
