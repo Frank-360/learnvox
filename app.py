@@ -498,15 +498,17 @@ def upload():
     # Prepare Study Room Lesson
     # -------------------------
 
-    room_code = session["ROOM_CODE"]
+    room_code = session.get("ROOM_CODE")
 
-    engine = rooms[room_code]
-    class_session = sessions[room_code]
+    if room_code:
 
-    class_session.teacher.prepare_lesson(
-        class_session,
-        text
-    )
+        engine = rooms[room_code]
+        class_session = sessions[room_code]
+
+        class_session.teacher.prepare_lesson(
+            class_session,
+            text
+        )
 
     print("TEXT LENGTH:", len(text))
     print("Extraction Time:", time.time() - start_time)
