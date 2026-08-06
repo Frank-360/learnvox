@@ -72,30 +72,21 @@ class ClassroomController:
         # -------------------------------------
         # Feedback finished
         # -------------------------------------
-
         if self.session.teacher_state == TeacherState.FEEDBACK:
 
             # -------------------------------------
-            # Execute AI teaching decision
+            # Feedback has already been delivered.
+            # The AI has adapted its teaching.
+            # Continue with the lesson.
             # -------------------------------------
 
-            if self.session.teaching_decision == TeachingDecision.CONTINUE:
-
-                return self.continue_lesson()
-
-            elif self.session.teaching_decision == TeachingDecision.REVIEW:
-
-                print(">>> REVIEW not implemented yet")
-
-                return self.continue_lesson()
-
-            elif self.session.teaching_decision == TeachingDecision.REINFORCE:
-
-                print(">>> REINFORCE not implemented yet")
-
-                return self.continue_lesson()
+            print(
+                f">>> Continuing after "
+                f"{self.session.teaching_decision.value}"
+            )
 
             return self.continue_lesson()
+       
 
         # -------------------------------------
         # Normal lesson progression
@@ -236,12 +227,22 @@ class ClassroomController:
 
         self.session.clear_answers()
 
-        print("Calling reset_answers()...")
         self.engine.reset_answers()
 
         self.session.waiting_for_answers = False
 
         self.session.active_question = None
+
+        # Clear previous evaluation
+        self.session.teacher_feedback = ""
+
+        self.session.reinforcement_message = ""
+
+        self.session.teaching_decision = None
+
+        self.session.classroom_state = ClassroomState.TEACHING
+
+        self.session.teacher_state = TeacherState.TEACHING
 
         self.session.current_message = self.teacher.next_block(
             self.session

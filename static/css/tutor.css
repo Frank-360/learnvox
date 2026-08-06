@@ -3162,3 +3162,78 @@ img{
     color:#fff;
 
 }
+
+
+
+.teacher-message{
+
+    white-space:normal;
+
+    line-height:1.8;
+
+}
+
+.teacher-message p{
+
+    margin:0 0 16px 0;
+
+}
+
+.teacher-message p:last-child{
+
+    margin-bottom:0;
+
+}
+
+.teacher-message ul{
+
+    margin:16px 0;
+
+    padding-left:24px;
+
+}
+
+.teacher-message li{
+
+    margin-bottom:10px;
+
+}
+
+
+.completion-card{
+
+    background:#ffffff;
+
+    border-radius:18px;
+
+    padding:40px;
+
+    text-align:center;
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+    margin-bottom:30px;
+
+}
+
+.completion-card h1{
+
+    color:#16a34a;
+
+    margin-bottom:15px;
+
+}
+
+.completion-card h2{
+
+    margin-bottom:20px;
+
+}
+
+.completion-card p{
+
+    font-size:18px;
+
+    color:#555;
+
+}

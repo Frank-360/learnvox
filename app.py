@@ -1273,18 +1273,23 @@ def live_classroom(room_code):
     None
 )
 
-    return render_template(
-    "classroom_live.html",
-    session=session,
-    room_code=room_code,
-    waiting=session.waiting_for_answers,
-    learner_name=learner_name,
-    learner=learner,
-    is_host=(
-        flask_session.get("learner_id")
-        == session.room.host_id
+    reinforcement_html = markdown.markdown(
+    session.reinforcement_message or ""
     )
-)
+
+    return render_template(
+        "classroom_live.html",
+        session=session,
+        room_code=room_code,
+        waiting=session.waiting_for_answers,
+        learner_name=learner_name,
+        learner=learner,
+        reinforcement_html=reinforcement_html,
+        is_host=(
+            flask_session.get("learner_id")
+            == session.room.host_id
+        )
+    )
 
 
 @app.route("/classroom/<room_code>/next", methods=["POST"])
@@ -1316,11 +1321,31 @@ def classroom_status(room_code):
     if session is None:
         return {"started": False}, 404
 
+    print("STATUS REQUEST")
+    print("State:", session.classroom_state.value)
+    print("Waiting:", session.waiting_for_answers)
+    print("Decision:", session.teaching_decision)
+
+
     return {
-    "started": session.class_started,
-    "waiting": session.waiting_for_answers,
-    "state": session.classroom_state.value
-}
+
+        "started": session.class_started,
+
+        "waiting": session.waiting_for_answers,
+
+        "state": session.classroom_state.value,
+
+        "teacher_feedback": session.teacher_feedback,
+
+        "reinforcement_message": session.reinforcement_message,
+
+        "teaching_decision": (
+            session.teaching_decision.value
+            if session.teaching_decision
+            else None
+        )
+
+    }
 
 
 @app.route("/classroom/<room_code>/answer", methods=["POST"])

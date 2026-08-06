@@ -58,6 +58,34 @@
             background:#1d4ed8;
         }
 
+
+        .evaluation-card{
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:30px;
+
+    margin-top:25px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.score{
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    color:#2563eb;
+
+    margin:10px 0;
+
+}
+
+
     </style>
 
 </head>
@@ -73,22 +101,102 @@
     </div>
 
     <p>Host: {{ is_host }}</p>
-    
-    <div class="teacher-message">
 
-    {% if session.waiting_for_answers and session.active_question %}
+    {% if session.classroom_state.value == "lesson_complete" %}
 
-        {{ session.active_question.question }}
+    <div class="completion-card">
+
+        <h1>🎉 Lesson Completed</h1>
+
+        <h2>{{ session.room.title }}</h2>
+
+        <p>
+
+            Congratulations!
+
+            You have successfully completed today's lesson.
+
+        </p>
+
+        <hr>
+
+        <div class="teacher-message">
+
+            <h3>👨‍🏫 LearnVox Teacher</h3>
+
+            <p>
+
+                Excellent work today.
+
+                Continue strengthening your understanding using your Study Notes and Revision Audio.
+
+                I look forward to learning with you again.
+
+            </p>
+
+        </div>
+
+        <hr>
+
+        <div class="resource-card">
+
+            <h3>📄 Study Notes</h3>
+
+            <p>
+
+                Your AI-generated Study Notes will be available here.
+
+            </p>
+
+            <button class="next-btn" disabled>
+
+                Coming Soon
+
+            </button>
+
+        </div>
+
+        <hr>
+
+        <div class="resource-card">
+
+            <h3>🎧 Revision Audio</h3>
+
+            <p>
+
+                Your Revision Audio will be available here.
+
+            </p>
+
+            <button class="next-btn" disabled>
+
+                Coming Soon
+
+            </button>
+
+        </div>
+
+    </div>
 
     {% else %}
 
-        {{ session.current_message }}
+    <div class="teacher-message">
+
+        {% if session.waiting_for_answers and session.active_question %}
+
+            {{ session.active_question.question }}
+
+        {% else %}
+
+            {{ session.current_message }}
+
+        {% endif %}
+
+    </div>
 
     {% endif %}
 
-</div>
-
-{% if session.classroom_state.value == "feedback" %}
+   {% if session.classroom_state.value == "feedback" %}
 
 <div class="evaluation-card">
 
@@ -116,11 +224,40 @@
 
     <hr>
 
-    <h3>Teacher</h3>
+    <h3>👨‍🏫 Let's Continue Learning</h3>
 
-    <p>
-        {{ session.teacher_feedback }}
-    </p>
+    <div class="teacher-message">
+
+        <p>{{ session.teacher_feedback }}</p>
+
+        {% if reinforcement_html %}
+
+            <hr>
+
+            {{ reinforcement_html|safe }}
+
+        {% endif %}
+
+    </div>
+
+    {% if is_host %}
+
+    <hr>
+
+    <form
+        action="{{ url_for('next_classroom_step', room_code=room_code) }}"
+        method="POST"
+    >
+
+        <button class="next-btn">
+
+            ▶ Continue Lesson
+
+        </button>
+
+    </form>
+
+    {% endif %}
 
 </div>
 
@@ -143,7 +280,9 @@
                 ></textarea>
 
                 <button type="submit">
+
                     Submit Answer
+
                 </button>
 
             </form>
@@ -157,7 +296,9 @@
             <h3>✅ Your answer has been submitted.</h3>
 
             <p>
+
                 Waiting for LearnVox to evaluate the class...
+
             </p>
 
         </div>
@@ -165,7 +306,6 @@
     {% endif %}
 
 {% endif %}
-
 <script>
 
 const waiting = document.body.dataset.waiting === "true";
@@ -224,6 +364,46 @@ if (waiting) {
                     clearInterval(waitingInterval);
 
                     console.log("Class updated. Reloading...");
+
+                    location.reload();
+
+                }
+
+            });
+
+    }, 2000);
+
+}
+
+// -------------------------------------
+// Feedback Synchronizer
+// -------------------------------------
+
+if (
+    classroomState === "feedback" &&
+    !{{ is_host|tojson }}
+) {
+
+    console.log("Waiting for host to continue...");
+
+    const feedbackInterval = setInterval(() => {
+
+        fetch("/classroom/{{ room_code }}/status")
+            .then(response => response.json())
+            .then(data => {
+
+                console.log("Current State:", data.state);
+
+                // Host has continued the lesson
+
+                if (
+                    data.state !== "feedback"
+                )
+                                {
+
+                    clearInterval(feedbackInterval);
+
+                    console.log("Host continued. Reloading...");
 
                     location.reload();
 

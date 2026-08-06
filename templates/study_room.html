@@ -117,7 +117,7 @@
         {% if learner.id == session["ROOM_USER_ID"] and learner.status.value == "ready" %}
 
             {% set me.ready = True %}
-
+if (data.success)
         {% endif %}
 
     {% endfor %}
@@ -355,49 +355,31 @@ if (answerForm) {
 
         const data = await response.json();
 
+        console.log(data);
+
         const feedback = document.getElementById("teacherFeedback");
 
-        if (data.success) {
+    if (data.success) {
 
     document.getElementById("answerForm").style.display = "none";
 
     feedback.innerHTML = `
-        <div class="teacher-feedback">
-            <p><strong>Teacher:</strong> ${data.feedback}</p>
 
-            <p style="margin-top:15px;">
-                <strong>Decision:</strong> ${data.decision}
+        <div class="teacher-feedback">
+
+            <h3>✅ Answer Submitted</h3>
+
+            <p>
+
+                Waiting for LearnVox to evaluate the class...const data = await response.json();
+
             </p>
 
-            <p>${data.reason}</p>
         </div>
+
     `;
 
-        if (data.decision === "continue") {
-
-            setTimeout(() => {
-
-                window.location.replace("/study-room");
-
-            }, 3000);
-
-        }
-
-        else if (data.decision === "review") {
-
-            // We'll implement this next.
-            console.log("Teacher wants to review.");
-
-        }
-
-        else if (data.decision === "reinforce") {
-
-            // We'll implement this next.
-            console.log("Teacher wants to reinforce.");
-
-        }
-
-}
+} 
         
         else{
 

@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class ClassroomState(Enum):
 
     WAITING = "waiting"
@@ -19,8 +18,6 @@ class ClassroomState(Enum):
 
     FEEDBACK = "feedback"
 
-    REVIEW = "review"
-
-    REINFORCE = "reinforce"
+    LESSON_COMPLETE = "lesson_complete"
 
     COMPLETED = "completed"

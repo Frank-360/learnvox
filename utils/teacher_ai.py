@@ -176,8 +176,13 @@ class TeacherAI:
 
             session.teacher_state = TeacherState.FINISHED
 
-            return "Today's lesson is complete."
+            session.classroom_state = ClassroomState.LESSON_COMPLETE
 
+            session.current_message = "Today's lesson is complete."
+
+            return session.current_message
+
+        
         session.teacher_state = TeacherState.TEACHING
 
         session.room.add_event(
