@@ -1277,6 +1277,11 @@ def live_classroom(room_code):
     session.reinforcement_message or ""
     )
 
+    print("Host ID:", session.room.host_id)
+    print("learner_id:", flask_session.get("learner_id"))
+    print("ROOM_USER_ID:", flask_session.get("ROOM_USER_ID"))
+
+
     return render_template(
         "classroom_live.html",
         session=session,

@@ -394,12 +394,7 @@ if (
 
                 console.log("Current State:", data.state);
 
-                // Host has continued the lesson
-
-                if (
-                    data.state !== "feedback"
-                )
-                                {
+                if (data.state !== "feedback") {
 
                     clearInterval(feedbackInterval);
 
