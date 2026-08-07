@@ -145,6 +145,8 @@ class TeacherAI:
 
         lesson = generate_study_room_lesson(document)
 
+        session.lesson_content = lesson
+
         lesson_title, blocks = parse_lesson(lesson)
 
         engine = LessonEngine()

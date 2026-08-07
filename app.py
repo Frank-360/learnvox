@@ -1024,6 +1024,18 @@ def create_classroom():
         # ==========================
         room_code = generate_room_code()
 
+        classroom_folder = os.path.join(
+            "static",
+            "classroom",
+            room_code
+        )
+
+        os.makedirs(
+            classroom_folder,
+            exist_ok=True
+        )
+
+
         # ==========================
         # CREATE HOST LEARNER
         # ==========================
@@ -1062,6 +1074,7 @@ def create_classroom():
             classroom_engine=engine
         )
 
+        class_session.lesson_folder = classroom_folder
         # ==========================
         # HOST JOINS CLASSROOM
         # ==========================
@@ -1078,6 +1091,21 @@ def create_classroom():
             class_session,
             text
         )
+
+        takeaway = generate_takeaway(
+            class_session.lesson_content
+        )
+
+        lesson_file = create_lesson_doc(
+            "LearnVox Classroom",
+            "",
+            class_session.lesson_content,
+            takeaway,
+            class_session.room.title,
+            output_folder=class_session.lesson_folder
+        )
+
+        class_session.lesson_notes_file = lesson_file
 
         # ==========================
         # SAVE ACTIVE CLASSROOM
@@ -1281,6 +1309,7 @@ def live_classroom(room_code):
     print("learner_id:", flask_session.get("learner_id"))
     print("ROOM_USER_ID:", flask_session.get("ROOM_USER_ID"))
 
+    print("Lesson Notes File:", session.lesson_notes_file)
 
     return render_template(
         "classroom_live.html",
@@ -1290,6 +1319,7 @@ def live_classroom(room_code):
         learner_name=learner_name,
         learner=learner,
         reinforcement_html=reinforcement_html,
+        lesson_notes=session.lesson_notes_file,
         is_host=(
             flask_session.get("learner_id")
             == session.room.host_id

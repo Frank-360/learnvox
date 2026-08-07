@@ -18,8 +18,10 @@ def create_lesson_doc(
     institution,
     summary,
     takeaway,
-    original_filename
+    original_filename,
+    output_folder="static/downloads"
 ):
+
 
     document = Document()
 
@@ -95,26 +97,27 @@ def create_lesson_doc(
     # -------------------------
 
     os.makedirs(
-        "static/downloads",
-        exist_ok=True
+    output_folder,
+    exist_ok=True
     )
 
     base_filename = clean_filename(
     os.path.splitext(original_filename)[0]
-)
+    )
 
     filename = (
     f"{clean_filename(full_name)}_"
     f"{base_filename}_"
     f"AI_Study_Notes.docx"
-)
+    )
 
     output_path = os.path.join(
-        "static/downloads",
+        output_folder,
         filename
     )
 
+
     document.save(output_path)
 
-    return "/static/downloads/" + filename
+    return output_path.replace("\\", "/").replace("static/", "")        
 

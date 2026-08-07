@@ -148,12 +148,26 @@
 
             </p>
 
+            {% if session.lesson_notes_file %}
+
+            <a
+                href="{{ url_for('static', filename=session.lesson_notes_file.replace('static/', '')) }}"
+                class="next-btn"
+                download>
+
+                📘 Download Study Notes
+
+            </a>
+
+            {% else %}
+
             <button class="next-btn" disabled>
 
-                Coming Soon
+                Study Notes Not Ready
 
             </button>
 
+            {% endif %}
         </div>
 
         <hr>
@@ -193,6 +207,26 @@
         {% endif %}
 
     </div>
+
+    {% if session.lesson_audio %}
+
+    <div class="lesson-audio">
+
+        <h4>🎧 Listen to AI Teacher</h4>
+
+        <audio controls preload="metadata">
+
+            <source
+                src="{{ url_for('static', filename=session.lesson_audio) }}"
+                type="audio/mpeg">
+
+            Your browser does not support audio playback.
+
+        </audio>
+
+    </div>
+
+    {% endif %}
 
     {% endif %}
 

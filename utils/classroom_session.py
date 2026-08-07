@@ -78,9 +78,18 @@ class ClassroomSession:
     # TEACHING DECISION
     # -------------------------------------
 
+
     teacher_feedback: str = ""
 
     reinforcement_message: str = ""
+
+    lesson_folder: str = ""
+
+    lesson_content: str = ""
+
+    lesson_notes_file: str = ""
+
+    lesson_audio_file: str = ""
 
     teaching_decision = None
 
