@@ -100,8 +100,6 @@
         🎓 {{ session.teacher.name }}
     </div>
 
-    <p>Host: {{ is_host }}</p>
-
     {% if session.classroom_state.value == "lesson_complete" %}
 
     <div class="completion-card">
@@ -182,11 +180,26 @@
 
             </p>
 
-            <button class="next-btn" disabled>
+            {% if session.lesson_audio_file %}
 
-                Coming Soon
+        <a
+            href="{{ url_for('static', filename=session.lesson_audio_file) }}"
+            class="next-btn"
+            download>
 
-            </button>
+            🎧 Download Revision Audio
+
+        </a>
+
+        {% else %}
+
+        <button class="next-btn" disabled>
+
+            Revision Audio Not Ready
+
+        </button>
+
+        {% endif %}
 
         </div>
 

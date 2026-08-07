@@ -1107,6 +1107,27 @@ def create_classroom():
 
         class_session.lesson_notes_file = lesson_file
 
+        audio_filename = "revision_audio.mp3"
+
+        audio_path = os.path.join(
+            class_session.lesson_folder,
+            audio_filename
+        )
+
+        generate_audio(
+            class_session.lesson_content,
+            audio_path
+        )
+
+        class_session.lesson_audio_file = (
+            os.path.join(
+                class_session.lesson_folder,
+                audio_filename
+            )
+            .replace("\\", "/")
+            .replace("static/", "")
+        )
+
         # ==========================
         # SAVE ACTIVE CLASSROOM
         # ==========================
